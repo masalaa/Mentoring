@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentoring - Find Your Perfect Mentor</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion/dist/framer-motion.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo-container">
+                <div class="logo"></div>
+                <h1>Mentoring</h1>
+            </div>
+            <div class="nav-links">
+                <div class="main-nav">
+                    <a href="index.html" class="active">Home</a>
+                    <a href="#mentor">Mentor</a>
+                    <a href="#about">About</a>
+                    <a href="profile.html" class="profile-link" style="display: none;">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                </div>
+                <div class="auth-nav">
+                    <a href="login.html" class="auth-btn">Login</a>
+                    <a href="signup.html" class="auth-btn">Sign Up</a>
+                    <a href="#" class="signout-btn" style="display: none;">Sign Out</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero-section">
+            <h2>Find Your Perfect Mentor</h2>
+            <div class="search-container">
+                <input type="text" placeholder="Search for Course...">
+                <button class="search-btn">Search</button>
+            </div>
+        </section>
+
+        <section id="enrollment" class="enrollment-section">
+            <h2>Popular Learning Paths</h2>
+            <div class="enrollment-grid">
+                <div class="enrollment-card">
+                    <div class="card-image ml-bg"></div>
+                    <div class="card-content">
+                        <h3>Machine Learning & AI</h3>
+                        <p>Master the fundamentals of ML and AI with industry experts</p>
+                        <span class="price">$29</span>
+                        <button class="enroll-btn">Enroll Now</button>
+                    </div>
+                </div>
+                <div class="enrollment-card">
+                    <div class="card-image data-bg"></div>
+                    <div class="card-content">
+                        <h3>Data Analysis</h3>
+                        <p>Learn data visualization and statistical analysis</p>
+                        <span class="price">$50</span>
+                        <button class="enroll-btn">Enroll Now</button>
+                    </div>
+                </div>
+                <div class="enrollment-card">
+                    <div class="card-image web-bg"></div>
+                    <div class="card-content">
+                        <h3>Web Development</h3>
+                        <p>Build modern websites with latest technologies</p>
+                        <span class="price">$29</span>
+                        <button class="enroll-btn">Enroll Now</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact-section">
+            <h2>Contact Us</h2>
+            <p>Email: <a href="mailto:23z310@psgtech.ac.in">23z310@psgtech.ac.in</a></p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Mentoring. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <!-- Add before closing body tag -->
+    <script src="js/main.js"></script>
+</body>
+</html>

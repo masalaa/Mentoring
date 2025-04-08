@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Mentoring</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/profile.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo-container">
+                <div class="logo"></div>
+                <h1>Mentoring</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#mentor">Mentor</a>
+                <a href="#about">About</a>
+                <a href="profile.html" class="profile-link active">
+                    <i class="fas fa-user-circle"></i> Profile
+                </a>
+                <a href="login.html" class="auth-btn" style="display: none;">Login</a>
+                <a href="signup.html" class="auth-btn" style="display: none;">Sign Up</a>
+                <a href="#" class="signout-btn">Sign Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="profile-main">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-info">
+                    <h2>John Doe</h2>
+                    <p>Student</p>
+                    <p>Joined: January 2023</p>
+                </div>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <i class="fas fa-book-open"></i>
+                    <h3>Enrolled Courses</h3>
+                    <span>3</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Learning Hours</h3>
+                    <span>45</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-certificate"></i>
+                    <h3>Certificates</h3>
+                    <span>2</span>
+                </div>
+            </div>
+
+            <div class="enrolled-courses">
+                <h3>My Courses</h3>
+                <div class="course-progress-grid">
+                    <div class="course-progress-card">
+                        <h4>Machine Learning & AI</h4>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 75%"></div>
+                        </div>
+                        <span>75% Complete</span>
+                    </div>
+                    <div class="course-progress-card">
+                        <h4>Data Analysis</h4>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 45%"></div>
+                        </div>
+                        <span>45% Complete</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="learning-analytics">
+                <h3>Learning Progress</h3>
+                <canvas id="learningChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/profile.js"></script>
+</body>
+</html>

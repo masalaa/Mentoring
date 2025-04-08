@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mentoring</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <h2>Welcome Back</h2>
+        <div class="role-selector">
+            <label class="role-option">
+                <input type="radio" name="role" value="mentee" checked>
+                <span>Mentee</span>
+            </label>
+            <label class="role-option">
+                <input type="radio" name="role" value="mentor">
+                <span>Mentor</span>
+            </label>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <input type="email" id="email" required placeholder="Email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" required placeholder="Password">
+            </div>
+            <button type="submit" class="enroll-btn">Login</button>
+        </form>
+        <p id="message"></p>
+        <p class="auth-switch">Don't have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+            const userData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                role: selectedRole
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    document.getElementById('message').style.color = 'green';
+                    document.getElementById('message').textContent = 'Login successful!';
+                    localStorage.setItem('user', JSON.stringify({
+                        ...data.user,
+                        role: selectedRole
+                    }));
+                    
+                    setTimeout(() => {
+                        if (selectedRole === 'mentor') {
+                            window.location.href = 'mentor.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }, 1500);
+                } else {
+                    document.getElementById('message').style.color = 'red';
+                    document.getElementById('message').textContent = data.message || 'Invalid credentials';
+                }
+            } catch (error) {
+                document.getElementById('message').style.color = 'red';
+                document.getElementById('message').textContent = 'Login failed. Please try again.';
+                console.error('Login error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
