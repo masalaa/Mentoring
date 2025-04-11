@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Dashboard - Mentoring</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo-container">
+                <div class="logo"></div>
+                <h1>Mentoring</h1>
+            </div>
+            <div class="nav-links">
+                <a href="mentor.html" class="active">Dashboard</a>
+                <a href="business.html">My Business</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="signout-btn" id="signoutBtn">Sign Out</a>
+        </div>
+    </nav>
+
+    <main class="mentor-content">
+        <div class="container">
+            <h2 id="welcomeMessage">Welcome to Mentor Dashboard</h2>
+            <!-- Add your mentor dashboard content here -->
+        </div>
+    </main>
+
+    <script>
+        // Get user data and display welcome message
+        window.addEventListener('DOMContentLoaded', () => {
+            const userData = JSON.parse(localStorage.getItem('user'));
+            if (userData && userData.name) {
+                document.getElementById('welcomeMessage').textContent = `Welcome, ${userData.name}`;
+            }
+        });
+
+        // Handle sign out
+        document.getElementById('signoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

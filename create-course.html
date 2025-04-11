@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Course - Mentoring</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo-container">
+                <div class="logo"></div>
+                <h1>Mentoring</h1>
+            </div>
+            <div class="nav-links">
+                <a href="mentor.html">Dashboard</a>
+                <a href="business.html" class="active">My Business</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="signout-btn" id="signoutBtn">Sign Out</a>
+        </div>
+    </nav>
+
+    <main class="mentor-content">
+        <div class="course-creation-sections">
+            <a href="#overview" class="section-link active">Overview</a>
+            <a href="#pricing" class="section-link">Pricing</a>
+            <a href="#gallery" class="section-link">Gallery</a>
+            <a href="#publish" class="section-link">Publish</a>
+        </div>
+
+        <div id="courseFormContainer">
+            <!-- Overview Section -->
+            <div id="overviewSection" class="course-form-section">
+                <input type="text" id="courseTitle" placeholder="Course Title" required>
+                <select id="courseCategory" required>
+                    <option value="">Select Category</option>
+                    <option value="digital-marketing">Digital Marketing</option>
+                    <option value="web-development">Web Development</option>
+                    <option value="data-analysis">Data Analysis</option>
+                    <!-- Add more categories as needed -->
+                </select>
+                <textarea id="courseDescription" maxlength="250" placeholder="Course Description (50 words max)"></textarea>
+                <span id="wordCount">0/50</span>
+            </div>
+
+            <!-- Pricing Section -->
+            <div id="pricingSection" class="course-form-section" style="display:none">
+                <div class="pricing-table">
+                    <table>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Days</th>
+                            <th>Price (₹)</th>
+                        </tr>
+                        <tr>
+                            <td>Basic</td>
+                            <td><input type="number" class="days-input" min="1"></td>
+                            <td><input type="number" class="price-input" min="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Normal</td>
+                            <td><input type="number" class="days-input" min="1"></td>
+                            <td><input type="number" class="price-input" min="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Premium</td>
+                            <td><input type="number" class="days-input" min="1"></td>
+                            <td><input type="number" class="price-input" min="0"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Gallery Section -->
+            <div id="gallerySection" class="course-form-section" style="display:none">
+                <input type="file" id="courseImage" accept="image/*">
+                <div id="imagePreview"></div>
+            </div>
+
+            <!-- Publish Section -->
+            <div id="publishSection" class="course-form-section" style="display:none">
+                <button id="publishButton" class="publish-btn">Publish Course</button>
+            </div>
+
+            <div class="form-navigation">
+                <button id="prevBtn" style="display:none">Previous</button>
+                <button id="nextBtn">Next</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Authentication check
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) window.location.href = 'login.html';
+
+        // Navigation handling
+        const sections = ['overview', 'pricing', 'gallery', 'publish'];
+        let currentSection = 0;
+
+        function showSection(index) {
+            sections.forEach(section => {
+                document.getElementById(`${section}Section`).style.display = 'none';
+                document.querySelector(`[href="#${section}"]`).classList.remove('active');
+            });
+            document.getElementById(`${sections[index]}Section`).style.display = 'block';
+            document.querySelector(`[href="#${sections[index]}"]`).classList.add('active');
+            
+            document.getElementById('prevBtn').style.display = index === 0 ? 'none' : 'block';
+            document.getElementById('nextBtn').style.display = index === sections.length - 1 ? 'none' : 'block';
+            document.getElementById('publishButton').style.display = index === sections.length - 1 ? 'block' : 'none';
+        }
+
+        // Event Listeners
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentSection < sections.length - 1) showSection(++currentSection);
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentSection > 0) showSection(--currentSection);
+        });
+
+        document.getElementById('courseImage').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('publishButton').addEventListener('click', async () => {
+            try {
+                const courseData = {
+                    title: document.getElementById('courseTitle').value,
+                    category: document.getElementById('courseCategory').value,
+                    description: document.getElementById('courseDescription').value,
+                    pricing: {
+                        basic: { days: document.querySelectorAll('.days-input')[0].value, price: document.querySelectorAll('.price-input')[0].value },
+                        normal: { days: document.querySelectorAll('.days-input')[1].value, price: document.querySelectorAll('.price-input')[1].value },
+                        premium: { days: document.querySelectorAll('.days-input')[2].value, price: document.querySelectorAll('.price-input')[2].value }
+                    },
+                    image: document.getElementById('imagePreview').querySelector('img')?.src
+                };
+
+                const response = await fetch('http://localhost:5000/api/courses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mentorId: user._id, courseData })
+                });
+
+                if (response.ok) {
+                    alert('Course published successfully!');
+                    window.location.href = 'business.html';
+                } else {
+                    throw new Error('Failed to publish course');
+                }
+            } catch (error) {
+                alert('Error publishing course: ' + error.message);
+            }
+        });
+
+        document.getElementById('signoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

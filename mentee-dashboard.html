@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentee Dashboard - Mentoring</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .welcome-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .course-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+        .course-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .status-active {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .progress-section {
+            margin-top: 30px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #4caf50;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="mentee-profile.html" id="profileLink">Profile</a>
+                <a href="#courses">My Courses</a>
+            </div>
+            <div class="sign-out" id="signOut">Sign Out</div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="welcome-section">
+            <h1>Welcome, <span id="menteeName"></span></h1>
+            <p>Track your learning progress and manage your enrolled courses</p>
+        </div>
+
+        <section class="enrolled-section">
+            <h2>My Enrolled Courses</h2>
+            <div id="coursesGrid" class="courses-grid"></div>
+        </section>
+    </div>
+
+    <script>
+        // Profile link handler
+        document.getElementById('profileLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user && user._id) {
+                window.location.href = `mentee-profile.html?id=${user._id}`;
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Check authentication
+        window.addEventListener('DOMContentLoaded', async () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || !user._id) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load mentee profile data
+            try {
+                const response = await fetch(`http://localhost:5000/api/mentee/profile/${user._id}`);
+                const profileData = await response.json();
+                
+                if (profileData.success) {
+                    document.getElementById('menteeName').textContent = profileData.mentee.name;
+                    // Store updated profile data
+                    localStorage.setItem('user', JSON.stringify({
+                        ...user,
+                        ...profileData.mentee
+                    }));
+                    
+                    // Load enrolled courses
+                    loadEnrolledCourses(user._id);
+                } else {
+                    console.error('Failed to load profile');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        });
+
+        // Sign out handler
+        document.getElementById('signOut').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        // Load enrolled courses
+        async function loadEnrolledCourses(userId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/mentee/courses/${userId}`);
+                const data = await response.json();
+                
+                const coursesGrid = document.getElementById('coursesGrid');
+                if (data.success && data.courses.length > 0) {
+                    coursesGrid.innerHTML = data.courses.map(course => `
+                        <div class="course-card">
+                            <h3>${course.overview.title}</h3>
+                            <p>${course.overview.description}</p>
+                            <div class="progress-section">
+                                <span>Progress</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${course.progress || 0}%"></div>
+                                </div>
+                                <span>${course.progress || 0}% Complete</span>
+                            </div>
+                            <div class="course-status status-active">
+                                Active
+                            </div>
+                            <a href="course-details.html?id=${course._id}" class="btn-primary">Continue Learning</a>
+                        </div>
+                    `).join('');
+                } else {
+                    coursesGrid.innerHTML = '<p>No courses enrolled yet.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+    </script>
+</body>
+</html>

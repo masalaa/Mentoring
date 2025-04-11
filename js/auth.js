@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    console.log('User:', user);  // Debugging log
+
+    if (!user || !user._id) {
+        window.location.href = 'login.html';  // Redirect to login if not logged in
+    }
+
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
 

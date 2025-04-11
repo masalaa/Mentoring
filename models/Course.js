@@ -1,23 +1,49 @@
 const mongoose = require('mongoose');
 
 const courseSchema = new mongoose.Schema({
-    title: {
+    mentorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'mentors',
+        required: true
+    },
+    mentor: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'mentors'
+        },
+        email: String,
+        name: String
+    },
+    overview: {
+        title: String,
+        category: String,
+        description: String
+    },
+    pricing: {
+        basic: {
+            days: Number,
+            price: Number
+        },
+        normal: {
+            days: Number,
+            price: Number
+        },
+        premium: {
+            days: Number,
+            price: Number
+        }
+    },
+    gallery: {
+        image: String
+    },
+    status: {
         type: String,
-        required: true
+        default: 'active'
     },
-    description: {
-        type: String,
-        required: true
-    },
-    price: {
-        type: Number,
-        required: true
-    },
-    image: String,
-    enrollments: [{
-        userId: String,
-        enrollmentDate: Date
-    }]
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 });
 
-module.exports = mongoose.model('Course', courseSchema);
+module.exports = mongoose.model('course', courseSchema);  // Changed to 'course'

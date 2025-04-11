@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentee Profile</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .storage-status {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-success {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+        }
+        .status-error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+        }
+        .status-content {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="mentee-dashboard.html">Dashboard</a>
+                <a href="#profile">Profile</a>
+            </div>
+            <div class="sign-out" id="signOut">Sign Out</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="profileContent"></div>
+        <div id="storageStatus" class="storage-status"></div>
+    </div>
+
+    <script>
+        function checkLocalStorage() {
+            const userString = localStorage.getItem('user');
+            
+            // Terminal (console) output
+            console.group('LocalStorage Check');
+            console.log('Raw localStorage data:', userString);
+            
+            if (userString) {
+                try {
+                    const user = JSON.parse(userString);
+                    console.log('✅ User data found:');
+                    console.table({
+                        'User ID': user._id,
+                        'Name': user.name || 'N/A',
+                        'Email': user.email || 'N/A'
+                    });
+                    console.groupEnd();
+                    return true;
+                } catch (e) {
+                    console.error('❌ Invalid JSON data in localStorage');
+                    console.error('Error:', e);
+                    console.groupEnd();
+                    return false;
+                }
+            } else {
+                console.error('❌ No user data found in localStorage');
+                console.groupEnd();
+                return false;
+            }
+        }
+
+        // Call immediately to check
+        checkLocalStorage();
+        
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (!checkLocalStorage()) {
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 3000);
+                return;
+            }
+            try {
+                const userString = localStorage.getItem('user');
+                console.log('Raw user string:', userString);
+
+                const user = userString ? JSON.parse(userString) : null;
+                console.log('Parsed user object:', user);
+
+                if (!user) {
+                    throw new Error('No user data found');
+                }
+                if (!user._id) {
+                    throw new Error('No user ID found');
+                }
+
+                console.log('User ID:', user._id);
+                console.log('Full user data:', user);
+
+                // Display user data in the page
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="profile-container">
+                        <h2>Profile Details</h2>
+                        <p>Name: ${user.name || 'N/A'}</p>
+                        <p>Email: ${user.email || 'N/A'}</p>
+                        <p>User ID: ${user._id}</p>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error in profile page:', error);
+                // Add delay before redirect
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 3000); // 3 seconds delay
+                
+                // Show error message on page
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="error-message">
+                        <p>Error: ${error.message}</p>
+                        <p>Redirecting to login page...</p>
+                    </div>
+                `;
+                return;
+            }
+        });
+
+        // Add sign out functionality
+        document.getElementById('signOut').addEventListener('click', () => {
+            console.log('Signing out...');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

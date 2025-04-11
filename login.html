@@ -5,20 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Mentoring</title>
     <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .role-selector {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+            padding: 10px;
+        }
+        .role-selector label {
+            color: #666;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+        .role-selector label:hover {
+            color: #3498db;
+        }
+        .role-selector input[type="radio"]:checked + label {
+            color: #3498db;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body class="auth-page">
     <div class="auth-container">
-        <h2>Welcome Back</h2>
         <div class="role-selector">
-            <label class="role-option">
-                <input type="radio" name="role" value="mentee" checked>
-                <span>Mentee</span>
+            <label>
+                <input type="radio" name="role" value="mentor" required>Mentor
             </label>
-            <label class="role-option">
-                <input type="radio" name="role" value="mentor">
-                <span>Mentor</span>
+            <label>
+                <input type="radio" name="role" value="mentee" required>Mentee
             </label>
         </div>
+        <h2>Welcome Back</h2>
         <form id="loginForm">
             <div class="form-group">
                 <input type="email" id="email" required placeholder="Email">
@@ -30,9 +53,56 @@
         </form>
         <p id="message"></p>
         <p class="auth-switch">Don't have an account? <a href="signup.html">Sign Up</a></p>
+        <!-- Add test button -->
+        <button id="testButton" style="margin-top: 10px;">Add Test Data</button>
     </div>
 
     <script>
+        // Add test data function
+        document.getElementById('testButton').addEventListener('click', async () => {
+            const testData = {
+                mentor: {
+                    name: "John Doe",
+                    email: "john@test.com",
+                    password: "test123",
+                    courses: []
+                },
+                course: {
+                    overview: {
+                        title: "JavaScript Basics",
+                        category: "Programming",
+                        description: "Learn JavaScript fundamentals"
+                    },
+                    pricing: {
+                        basic: { days: 30, price: 49.99 },
+                        normal: { days: 60, price: 89.99 },
+                        premium: { days: 90, price: 149.99 }
+                    },
+                    gallery: {
+                        image: "https://example.com/js-course.jpg"
+                    },
+                    status: "active"
+                }
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/add-sample-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const data = await response.json();
+                document.getElementById('message').style.color = data.success ? 'green' : 'red';
+                document.getElementById('message').textContent = data.message;
+            } catch (error) {
+                document.getElementById('message').style.color = 'red';
+                document.getElementById('message').textContent = 'Error adding test data';
+            }
+        });
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -40,7 +110,7 @@
             const userData = {
                 email: document.getElementById('email').value,
                 password: document.getElementById('password').value,
-                role: selectedRole
+                selectedRole: selectedRole
             };
 
             try {
@@ -54,29 +124,23 @@
 
                 const data = await response.json();
                 
-                if (response.ok && data.success) {
+                if (data.success) {
                     document.getElementById('message').style.color = 'green';
-                    document.getElementById('message').textContent = 'Login successful!';
+                    document.getElementById('message').textContent = data.message;
+                    // Store MongoDB ObjectId
                     localStorage.setItem('user', JSON.stringify({
                         ...data.user,
-                        role: selectedRole
+                        _id: data.user._id
                     }));
                     
-                    setTimeout(() => {
-                        if (selectedRole === 'mentor') {
-                            window.location.href = 'mentor.html';
-                        } else {
-                            window.location.href = 'index.html';
-                        }
-                    }, 1500);
+                    window.location.href = data.user.redirectUrl;
                 } else {
                     document.getElementById('message').style.color = 'red';
-                    document.getElementById('message').textContent = data.message || 'Invalid credentials';
+                    document.getElementById('message').textContent = data.message;
                 }
             } catch (error) {
                 document.getElementById('message').style.color = 'red';
-                document.getElementById('message').textContent = 'Login failed. Please try again.';
-                console.error('Login error:', error);
+                document.getElementById('message').textContent = 'Login failed';
             }
         });
     </script>

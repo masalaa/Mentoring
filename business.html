@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Business - Mentoring</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo-container">
+                <div class="logo"></div>
+                <h1>Mentoring</h1>
+            </div>
+            <div class="nav-links">
+                <a href="mentor.html">Dashboard</a>
+                <a href="business.html" class="active">My Business</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="signout-btn" id="signoutBtn">Sign Out</a>
+        </div>
+    </nav>
+
+    <main class="mentor-content">
+        <div class="container">
+            <div class="action-bar">
+                <button class="start-course-btn" onclick="window.location.href='create-course.html'">Start Course</button>
+            </div>
+            <div class="course-section">
+                <h2>Course Requests</h2>
+                <div id="requestCards" class="request-cards"></div>
+            </div>
+            <div class="denied-section">
+                <h3>Denied Requests</h3>
+                <div id="deniedCards" class="denied-cards"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check authentication
+        const currentUser = JSON.parse(localStorage.getItem('user'));
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+
+        // Load user courses
+        async function loadUserCourses() {
+            try {
+                const response = await fetch(`http://localhost:5000/api/mentor/courses/${currentUser._id}`);
+                const data = await response.json();
+                
+                const courseSection = document.querySelector('.course-section');
+                if (!data.success || !data.courses.length) {
+                    courseSection.innerHTML += `
+                        <div class="no-courses">
+                            <i class="fas fa-book"></i>
+                            <h3>No Courses Yet</h3>
+                            <p>Start creating your first course!</p>
+                        </div>`;
+                    return;
+                }
+
+                const courseList = document.createElement('div');
+                courseList.className = 'course-list';
+                courseList.innerHTML = data.courses.map(course => `
+                    <div class="course-card">
+                        <div class="course-info">
+                            <h3>${course.overview.title}</h3>
+                            <p class="category">${course.overview.category}</p>
+                            <div class="course-stats">
+                                <span><i class="fas fa-users"></i> ${course.enrollments || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                courseSection.appendChild(courseList);
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+
+        // Sign out handler
+        document.getElementById('signoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        // Load courses when page loads
+        window.addEventListener('load', loadUserCourses);
+    </script>
+</body>
+</html>
