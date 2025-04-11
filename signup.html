@@ -8,17 +8,15 @@
 </head>
 <body class="auth-page">
     <div class="auth-container">
-        <h2>Create Account</h2>
         <div class="role-selector">
-            <label class="role-option">
-                <input type="radio" name="role" value="mentee" checked>
-                <span>Mentee</span>
+            <label>
+                <input type="radio" name="role" value="mentor" required>Mentor
             </label>
-            <label class="role-option">
-                <input type="radio" name="role" value="mentor">
-                <span>Mentor</span>
+            <label>
+                <input type="radio" name="role" value="mentee" required>Mentee
             </label>
         </div>
+        <h2>Create Account</h2>
         <form id="signupForm">
             <div class="form-group">
                 <input type="text" id="name" required placeholder="Full Name">
@@ -39,10 +37,18 @@
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const selectedRole = document.querySelector('input[name="role"]:checked')?.value;
+            if (!selectedRole) {
+                document.getElementById('message').style.color = 'red';
+                document.getElementById('message').textContent = 'Please select a role';
+                return;
+            }
+
             const userData = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
-                password: document.getElementById('password').value
+                password: document.getElementById('password').value,
+                role: selectedRole
             };
 
             try {
@@ -58,23 +64,31 @@
                 
                 if (data.success) {
                     document.getElementById('message').style.color = 'green';
-                    document.getElementById('message').textContent = data.message;
+                    document.getElementById('message').textContent = 'Account created successfully!';
+                    
                     // Store user data
-                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('user', JSON.stringify({
+                        _id: data.user._id,
+                        name: data.user.name,
+                        email: data.user.email,
+                        role: selectedRole
+                    }));
+
+                    // Updated role-based redirection
+                    const redirectUrl = selectedRole === 'mentor' ? 'mentor.html' : 'mentee-dashboard.html';
                     setTimeout(() => {
-                        window.location.href = 'index.html'; // Changed to redirect to index instead of login
-                    }, 2000);
+                        window.location.href = redirectUrl;
+                    }, 1500); // Increased timeout for better user experience
                 } else {
                     document.getElementById('message').style.color = 'red';
-                    document.getElementById('message').textContent = data.message;
+                    document.getElementById('message').textContent = data.message || 'Signup failed';
                 }
             } catch (error) {
+                console.error('Signup error:', error);
                 document.getElementById('message').style.color = 'red';
                 document.getElementById('message').textContent = 'Error creating account';
             }
         });
     </script>
-<!-- Add before closing body tag -->
-<script src="js/auth.js"></script>
 </body>
 </html>
