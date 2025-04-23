@@ -1,0 +1,41 @@
+// ... existing code ...
+
+window.addEventListener('DOMContentLoaded', async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchTerm = urlParams.get('term');
+
+    if (searchTerm) {
+        try {
+            const response = await fetch(`http://localhost:5000/api/courses/search?term=${searchTerm}`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+
+            if (data.courses && data.courses.length > 0) {
+                document.getElementById('courseDetails').innerHTML = data.courses.map(course => `
+                    <div class="course-header">
+                        <img src="${course.image}" alt="${course.title}" class="course-image">
+                        <div class="course-info">
+                            <h1>${course.title}</h1>
+                            <p class="mentor-info">
+                                <i class="fas fa-user"></i> ${course.mentorName}
+                            </p>
+                            <p class="course-category">
+                                <i class="fas fa-tag"></i> ${course.category}
+                            </p>
+                            <p class="course-description">${course.description}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('courseDetails').innerHTML = '<div>No courses found</div>';
+            }
+        } catch (error) {
+            console.error('Error loading search results:', error);
+        }
+    }
+});
+
+// ... existing code ...

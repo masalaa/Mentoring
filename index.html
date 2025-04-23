@@ -46,7 +46,16 @@
         <section id="home" class="hero-section">
             <h2>Find Your Perfect Mentor</h2>
             <div class="search-container">
-                <input type="text" placeholder="Search for Course...">
+                <!-- Ensure the search bar redirects to the search page -->
+                <input type="text" class="search-bar" placeholder="Search for courses..." id="searchInput" oninput="redirectToSearchPage(this.value)">
+
+                <script>
+                    function redirectToSearchPage(searchTerm) {
+                        if (searchTerm.length >= 2) {
+                            window.location.href = `course-search.html?term=${encodeURIComponent(searchTerm)}`;
+                        }
+                    }
+                </script>
                 <button class="search-btn">Search</button>
             </div>
         </section>

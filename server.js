@@ -90,58 +90,58 @@ app.post('/api/signup', async (req, res) => {
     }
 });
 
-// Update publish course route
-app.post('/api/publish-course', async (req, res) => {
-    try {
-        const { mentorId, courseData } = req.body;
-        const mentor = await Mentor.findById(mentorId);
+// // Update publish course route
+// app.post('/api/publish-course', async (req, res) => {
+//     try {
+//         const { mentorId, courseData } = req.body;
+//         const mentor = await Mentor.findById(mentorId);
 
-        if (!mentor) {
-            return res.status(404).json({
-                success: false,
-                message: 'Mentor not found'
-            });
-        }
+//         if (!mentor) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'Mentor not found'
+//             });
+//         }
 
-        // Create new course with proper structure
-        const newCourse = new Course({
-            mentorId: mentorId,
-            mentor: {
-                id: mentorId,
-                email: mentor.email,
-                name: mentor.name
-            },
-            overview: courseData.overview,
-            pricing: courseData.pricing,
-            gallery: courseData.gallery,
-            status: 'active'
-        });
+//         // Create new course with proper structure
+//         const newCourse = new Course({
+//             mentorId: mentorId,
+//             mentor: {
+//                 id: mentorId,
+//                 email: mentor.email,
+//                 name: mentor.name
+//             },
+//             overview: courseData.overview,
+//             pricing: courseData.pricing,
+//             gallery: courseData.gallery,
+//             status: 'active'
+//         });
 
-        // Save to course collection
-        const savedCourse = await newCourse.save();
+//         // Save to course collection
+//         const savedCourse = await newCourse.save();
 
-        // Update mentor's courses array
-        await Mentor.findByIdAndUpdate(
-            mentorId,
-            { $push: { courses: savedCourse._id } },
-            { new: true }
-        );
+//         // Update mentor's courses array
+//         await Mentor.findByIdAndUpdate(
+//             mentorId,
+//             { $push: { courses: savedCourse._id } },
+//             { new: true }
+//         );
 
-        res.status(200).json({
-            success: true,
-            message: 'Course published successfully',
-            courseId: savedCourse._id
-        });
+//         res.status(200).json({
+//             success: true,
+//             message: 'Course published successfully',
+//             courseId: savedCourse._id
+//         });
 
-    } catch (error) {
-        console.error('Error publishing course:', error);
-        res.status(500).json({
-            success: false,
-            message: 'There was an error saving your course. Please try again.',
-            error: error.message
-        });
-    }
-});
+//     } catch (error) {
+//         console.error('Error publishing course:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: '',
+//             error: error.message
+//         });
+//     }
+// });
 
 // Signin route
 app.post('/api/signin', async (req, res) => {
@@ -204,10 +204,11 @@ app.post('/api/signin', async (req, res) => {
     }
 });
 
-// Publish course route
+//Publish course route
 app.post('/api/publish-course', async (req, res) => {
     try {
         const { userId, courseData } = req.body;
+        console.log(req.body,"request body")
         const user = await User.findById(userId);
 
         if (!user) {
@@ -240,8 +241,6 @@ app.post('/api/publish-course', async (req, res) => {
     }
 });
 
-// Add this new route to check authentication
-// Update check-auth route
 app.get('/api/check-auth', async (req, res) => {
     try {
         const userId = req.headers.authorization;
@@ -292,42 +291,31 @@ app.get('/api/check-auth', async (req, res) => {
 // Add these new routes after existing routes
 
 // Search public courses
-app.get('/api/courses/search', async (req, res) => {
+// Ensure the API endpoint for fetching courses is correctly set up
+app.get('/api/courses', async (req, res) => {
     try {
-        const { query } = req.query;
-        const searchRegex = new RegExp(query, 'i');
-
-        const users = await User.find({ role: 'mentor' });
-        let allCourses = [];
-
-        users.forEach(user => {
-            const userCourses = (user.courses || []).map(course => ({
-                ...course.toObject(),
-                mentor: {
-                    name: user.name,
-                    email: user.email,
-                    expertise: user.expertise
-                }
-            }));
-            allCourses = [...allCourses, ...userCourses];
-        });
-
-        const filteredCourses = allCourses.filter(course => 
-            course.overview.title.match(searchRegex) ||
-            course.overview.description.match(searchRegex) ||
-            course.overview.tags?.some(tag => tag.match(searchRegex))
-        );
-
-        res.json({
-            success: true,
-            courses: filteredCourses
-        });
+        const courses = await Course.find(); // Assuming Course is your model
+        res.json({ courses });
     } catch (error) {
-        console.error('Search error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error searching courses'
+        console.error('Error fetching courses:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+// Handle search queries
+app.get('/api/courses/search', async (req, res) => {
+    const searchTerm = req.query.term;
+    try {
+        const courses = await Course.find({
+            $or: [
+                { title: { $regex: searchTerm, $options: 'i' } },
+                { category: { $regex: searchTerm, $options: 'i' } }
+            ]
         });
+        res.json({ courses });
+    } catch (error) {
+        console.error('Error searching courses:', error);
+        res.status(500).send('Server error');
     }
 });
 

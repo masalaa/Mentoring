@@ -153,12 +153,16 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:5000/api/courses/search?term=${searchTerm}`);
+                const response = await fetch(`http://localhost:5000/api/courses/search?term=${searchTerm}`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const data = await response.json();
                 
                 if (data.courses && data.courses.length > 0) {
                     searchHints.innerHTML = data.courses.map(course => `
-                        <div class="hint-item" onclick="loadCourseById('${course._id}')">
+                        <div class="hint-item" onclick="redirectToSearchResults('${searchTerm}')">
                             <img src="${course.image}" alt="${course.title}" class="hint-image">
                             <div class="hint-info">
                                 <div class="hint-title">${course.title}</div>
@@ -178,6 +182,31 @@
             }
         });
 
+        // Add this function to redirect to the search results page
+        function redirectToSearchResults(searchTerm) {
+            window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}`;
+        }
+
+        // Ensure no redirect occurs when loading course details
+        function loadCourseById(courseId) {
+            searchHints.style.display = 'none';
+            loadCourseDetails(courseId);
+        }
+
+        // Add a test case to verify no redirection occurs
+        function testNoRedirectOnSearch() {
+            const originalLocation = window.location.href;
+            loadCourseById('testCourseId');
+            if (window.location.href !== originalLocation) {
+                console.error('Redirection occurred during search');
+            } else {
+                console.log('No redirection occurred during search');
+            }
+        }
+
+        // Call the test function to verify behavior
+        testNoRedirectOnSearch();
+
         // Close hints when clicking outside
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !searchHints.contains(e.target)) {
@@ -185,21 +214,26 @@
             }
         });
 
-        function loadCourseById(courseId) {
-            searchHints.style.display = 'none';
-            loadCourseDetails(courseId);
-        }
-
         // Modify your existing loadCourseDetails function to accept courseId parameter
-        async function loadCourseDetails(courseId) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const courseId = urlParams.get('id');
-
+        // Fix the loadCourseDetails function
+        async function loadCourseDetails(id) {
             try {
-                const response = await fetch(`http://localhost:5000/api/courses/${courseId}`);
+                // If no id provided, just clear the details section
+                if (!id) {
+                    document.getElementById('courseDetails').innerHTML = '';
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:5000/api/courses/${id}`);
                 const data = await response.json();
                 const course = data.course;
-
+        
+                // Show enroll button based on login status without redirect
+                const user = JSON.parse(localStorage.getItem('user'));
+                const enrollButton = user ? 
+                    `<button class="enroll-btn" onclick="enrollCourse('${id}')">Send Enrollment Request</button>` : 
+                    `<button class="enroll-btn" onclick="showLoginMessage()">Login to Enroll</button>`;
+        
                 document.getElementById('courseDetails').innerHTML = `
                     <div class="course-header">
                         <img src="${course.image}" alt="${course.title}" class="course-image">
@@ -214,7 +248,7 @@
                             <p class="course-description">${course.description}</p>
                         </div>
                     </div>
-
+        
                     <div class="pricing-plans">
                         <div class="plan-card" onclick="selectPlan('basic')">
                             <h3>Basic Plan</h3>
@@ -232,20 +266,24 @@
                             <p class="price">₹${course.pricing.premium.price}</p>
                         </div>
                     </div>
-
-                    <button class="enroll-btn" onclick="enrollCourse('${courseId}')">
-                        Send Enrollment Request
-                    </button>
+        
+                    ${enrollButton}
                 `;
             } catch (error) {
                 console.error('Error loading course details:', error);
             }
         }
 
+        // Add this function to show a message instead of redirecting
+        function showLoginMessage() {
+            alert('Please login to enroll in this course');
+        }
+
+        // Modify enrollCourse function to handle non-logged in state without redirect
         async function enrollCourse(courseId) {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user) {
-                window.location.href = 'login.html';
+                showLoginMessage(); // Shows a message instead of redirecting
                 return;
             }
 

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const authButtons = document.querySelectorAll('.show-when-logged-out');
     const signoutBtn = document.querySelector('.signout-btn');
     const coursesSection = document.querySelector('.courses-section');
-    
+
     // Logo rotation on scroll
     let lastScrollPosition = 0;
     window.addEventListener('scroll', () => {
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logo.style.transform = `rotateY(${rotation}deg)`;
         lastScrollPosition = currentScroll;
     });
-    
+
     // Add scroll event listener for logo rotation
     window.addEventListener('scroll', () => {
         const navbar = document.querySelector('.navbar');
@@ -26,25 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    
-
-    
     // Search functionality
     searchBtn.addEventListener('click', () => {
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        
-        if (!isLoggedIn) {
-            showError('Please log in to search for mentors');
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
-            return;
+        const searchTerm = document.querySelector('.search-bar').value.trim();
+        if (searchTerm.length >= 2) {
+            window.location.href = `course-search.html?term=${encodeURIComponent(searchTerm)}`;
+        } else {
+            showError('Please enter at least 2 characters to search');
         }
     });
 
     // Mock login functionality
     function login() {
-        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('isLoggedIn', 'true'); // Store login state
         authBtns.forEach(btn => btn.style.display = 'none');
         signoutBtn.style.display = 'inline-block';
         coursesSection.style.display = 'block';
@@ -53,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mock logout functionality
     signoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('isLoggedIn'); // Clear login state
         checkAuthState();
         window.location.href = 'index.html';
     });
@@ -72,10 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check login status on page load
     if (localStorage.getItem('isLoggedIn')) {
-        login();
+        login(); // Restore login state
     }
 });
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileLink = document.querySelector('.profile-link');
@@ -87,12 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         
         if (isLoggedIn) {
-            // Show profile and sign out, hide login/signup
             profileLink.style.display = 'flex';
             signoutBtn.style.display = 'flex';
             authButtons.forEach(btn => btn.style.display = 'none');
         } else {
-            // Hide profile and sign out, show login/signup
             profileLink.style.display = 'none';
             signoutBtn.style.display = 'none';
             authButtons.forEach(btn => btn.style.display = 'flex');
@@ -111,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
 // Check authentication state on page load
 document.addEventListener('DOMContentLoaded', () => {
     updateAuthUI();
@@ -125,13 +115,11 @@ function updateAuthUI() {
     const profileLink = document.querySelector('.profile-link');
 
     if (user) {
-        // User is logged in
         if (loginBtn) loginBtn.style.display = 'none';
         if (signupBtn) signupBtn.style.display = 'none';
         if (signoutBtn) signoutBtn.style.display = 'inline-block';
         if (profileLink) profileLink.style.display = 'flex';
     } else {
-        // User is logged out
         if (loginBtn) loginBtn.style.display = 'inline-block';
         if (signupBtn) signupBtn.style.display = 'inline-block';
         if (signoutBtn) signoutBtn.style.display = 'none';
