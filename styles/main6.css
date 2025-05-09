@@ -274,7 +274,6 @@
     text-align: center;
     animation: slideDown 0.3s ease-out;
 }
-
 @keyframes slideDown {
     from {
         transform: translateY(-10px);
@@ -285,98 +284,3 @@
         opacity: 1;
     }
 }
-
-@import 'base.css';
-
-:root {
-    --primary-blue: #2980b9;
-    --secondary-blue: #3498db;
-    --light-blue: #74b9ff;
-    --dark-blue: #2c3e50;
-    --accent: #e74c3c;
-}
-
-/* Theme Specific Styles */
-.mentor-content {
-    background: linear-gradient(135deg, var(--gray) 0%, var(--light-blue) 100%);
-}
-
-/* Adjust welcome section spacing */
-.dashboard-welcome {
-    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-    box-shadow: 0 8px 25px rgba(41, 128, 185, 0.15);
-    margin-top: 250px; /* Increased margin-top */
-    padding: 6rem 3rem; /* Increased padding */
-    position: relative;
-}
-
-.welcome-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 4rem; /* Increased gap */
-    margin-bottom: 5rem; /* Increased margin */
-}
-
-.welcome-header h1 {
-    font-size: 3.2rem;
-    margin-top: 3rem; /* Increased margin */
-}
-.business-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    margin-top: 180px; /* Move container down */
-}
-
-.business-header {
-    text-align: center;
-    margin-bottom: 4rem;
-    color: var(--dark-blue);
-}
-
-.business-header h1 {
-    font-size: 2.8rem;
-    margin-bottom: 1rem;
-}
-
-.business-header p {
-    font-size: 1.2rem;
-    color: rgba(44, 62, 80, 0.8);
-}
-
-.action-bar {
-    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-    padding: 3rem;
-    border-radius: 20px;
-    margin-bottom: 4rem;
-    text-align: center;
-    box-shadow: 0 8px 25px rgba(41, 128, 185, 0.15);
-}
-
-.start-course-btn {
-    background: var(--white);
-    color: var(--primary-blue);
-    padding: 1.2rem 2.5rem;
-    border-radius: 25px;
-    font-size: 1.1rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.start-course-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.9);
-}
-
-.start-course-btn i {
-    font-size: 1.2rem;
-}
-

@@ -25,6 +25,16 @@ const menteeSchema = new mongoose.Schema({
         enrolledAt: {
             type: Date,
             default: Date.now
+        },
+        plan: {
+            type: String,
+            enum: ['basic', 'normal', 'premium'],
+            required: true
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
         }
     }]
 });

@@ -53,18 +53,24 @@
         <section id="home" class="hero-section">
             <h2>Find Your Perfect Mentor</h2>
             <div class="search-container">
-                <!-- Ensure the search bar redirects to the search page -->
-                <input type="text" class="search-bar" placeholder="Search for courses..." id="searchInput" oninput="redirectToSearchPage(this.value)">
-
-                <script>
-                    function redirectToSearchPage(searchTerm) {
-                        if (searchTerm.length >= 2) {
-                            window.location.href = `course-search.html?term=${encodeURIComponent(searchTerm)}`;
-                        }
-                    }
-                </script>
-                <button class="search-btn">Search</button>
+                <input type="text" class="search-bar" placeholder="Search for courses..." id="searchInput">
+                <button class="search-btn" onclick="handleSearch()">Search</button>
             </div>
+            <script>
+                function handleSearch() {
+                    const searchTerm = document.getElementById('searchInput').value.trim();
+                    if (searchTerm) {
+                        window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}`;
+                    }
+                }
+
+                // Add enter key support
+                document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        handleSearch();
+                    }
+                });
+            </script>
         </section>
 
         <section id="enrollment" class="enrollment-section">

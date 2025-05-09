@@ -302,18 +302,19 @@ app.get('/api/courses', async (req, res) => {
 
 // Handle search queries
 app.get('/api/courses/search', async (req, res) => {
-    const searchTerm = req.query.term;
     try {
+        const searchTerm = req.query.term;
         const courses = await Course.find({
             $or: [
-                { title: { $regex: searchTerm, $options: 'i' } },
-                { category: { $regex: searchTerm, $options: 'i' } }
+                { 'overview.title': { $regex: searchTerm, $options: 'i' } },
+                { 'overview.description': { $regex: searchTerm, $options: 'i' } },
+                { 'overview.category': { $regex: searchTerm, $options: 'i' } }
             ]
         });
-        res.json({ courses });
+        res.json(courses);
     } catch (error) {
-        console.error('Error searching courses:', error);
-        res.status(500).send('Server error');
+        console.error('Search error:', error);
+        res.status(500).json({ error: 'Search failed' });
     }
 });
 
@@ -574,6 +575,108 @@ app.post('/api/courses/create', async (req, res) => {
             success: false,
             message: 'Error creating course',
             error: error.message
+        });
+    }
+});
+
+// Add this route after your other routes
+app.get('/api/courses/:id', async (req, res) => {
+    try {
+        const courseId = req.params.id;
+        const course = await Course.findById(courseId);
+        
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: 'Course not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            course
+        });
+    } catch (error) {
+        console.error('Error fetching course details:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching course details'
+        });
+    }
+});
+
+// Add EnrollmentRequest Schema if not already defined
+const enrollmentRequestSchema = new mongoose.Schema({
+    courseId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'courses',
+        required: true
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'mentees',
+        required: true
+    },
+    plan: {
+        type: String,
+        required: true,
+        enum: ['basic', 'normal', 'premium']
+    },
+    status: {
+        type: String,
+        default: 'pending',
+        enum: ['pending', 'approved', 'rejected']
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+const EnrollmentRequest = mongoose.model('EnrollmentRequest', enrollmentRequestSchema);
+
+// Update the enrollment route
+app.post('/api/courses/enroll', async (req, res) => {
+    try {
+        const { courseId, plan, userId } = req.body;
+        const authUserId = req.headers.authorization;
+
+        if (!authUserId || authUserId !== userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized request'
+            });
+        }
+
+        // Verify course exists
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: 'Course not found'
+            });
+        }
+
+        // Create enrollment request
+        const enrollmentRequest = new EnrollmentRequest({
+            courseId,
+            userId,
+            plan
+        });
+
+        await enrollmentRequest.save();
+
+        res.json({
+            success: true,
+            message: 'Enrollment request sent successfully',
+            requestId: enrollmentRequest._id
+        });
+
+    } catch (error) {
+        console.error('Enrollment error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error processing enrollment request'
         });
     }
 });

@@ -25,16 +25,30 @@
     </nav>
 
     <main class="mentor-content">
-        <div class="container">
-            <div class="action-bar">
-                <button class="start-course-btn" onclick="window.location.href='create-course.html'">Start Course</button>
+        <div class="business-container">
+            <div class="business-header">
+                <h1>My Business</h1>
+                <p>Manage your courses and requests</p>
             </div>
+            
+            <div class="action-bar">
+                <button class="start-course-btn" onclick="window.location.href='create-course.html'">
+                    <i class="fas fa-plus"></i>
+                    Start New Course
+                </button>
+            </div>
+        
             <div class="course-section">
-                <h2>Course Requests</h2>
+                <div class="section-header">
+                    <h2>Course Requests</h2>
+                </div>
                 <div id="requestCards" class="request-cards"></div>
             </div>
+        
             <div class="denied-section">
-                <h3>Denied Requests</h3>
+                <div class="section-header">
+                    <h3>Denied Requests</h3>
+                </div>
                 <div id="deniedCards" class="denied-cards"></div>
             </div>
         </div>

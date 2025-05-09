@@ -123,6 +123,27 @@
             font-size: 0.9em;
             color: #666;
         }
+        .mentor-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .mentor-details h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .mentor-details p {
+            margin: 5px 0;
+            color: #34495e;
+        }
+        
+        .mentor-details i {
+            margin-right: 10px;
+            color: #3498db;
+        }
     </style>
 </head>
 <body>
@@ -130,122 +151,52 @@
         <!-- ... existing navbar code ... -->
     </nav>
 
-    <div class="search-container">
-        <input type="text" 
-               class="search-input" 
-               placeholder="Search courses..." 
-               id="searchInput">
-        <div class="search-hints" id="searchHints"></div>
-    </div>
-
     <div class="course-details" id="courseDetails"></div>
 
     <script>
-        // Add this at the beginning of your script
-        const searchInput = document.getElementById('searchInput');
-        const searchHints = document.getElementById('searchHints');
-
-        searchInput.addEventListener('input', async function() {
-            const searchTerm = this.value.trim();
-            if (searchTerm.length < 2) {
-                searchHints.style.display = 'none';
-                return;
-            }
-
+        async function loadCourseDetails() {
             try {
-                const response = await fetch(`http://localhost:5000/api/courses/search?term=${searchTerm}`, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const data = await response.json();
-                
-                if (data.courses && data.courses.length > 0) {
-                    searchHints.innerHTML = data.courses.map(course => `
-                        <div class="hint-item" onclick="redirectToSearchResults('${searchTerm}')">
-                            <img src="${course.image}" alt="${course.title}" class="hint-image">
-                            <div class="hint-info">
-                                <div class="hint-title">${course.title}</div>
-                                <div class="hint-mentor">
-                                    <i class="fas fa-user"></i> ${course.mentorName}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                    searchHints.style.display = 'block';
-                } else {
-                    searchHints.innerHTML = '<div class="hint-item">No courses found</div>';
-                    searchHints.style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Search error:', error);
-            }
-        });
+                const urlParams = new URLSearchParams(window.location.search);
+                const courseId = urlParams.get('id');
 
-        // Add this function to redirect to the search results page
-        function redirectToSearchResults(searchTerm) {
-            window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}`;
-        }
-
-        // Ensure no redirect occurs when loading course details
-        function loadCourseById(courseId) {
-            searchHints.style.display = 'none';
-            loadCourseDetails(courseId);
-        }
-
-        // Add a test case to verify no redirection occurs
-        function testNoRedirectOnSearch() {
-            const originalLocation = window.location.href;
-            loadCourseById('testCourseId');
-            if (window.location.href !== originalLocation) {
-                console.error('Redirection occurred during search');
-            } else {
-                console.log('No redirection occurred during search');
-            }
-        }
-
-        // Call the test function to verify behavior
-        testNoRedirectOnSearch();
-
-        // Close hints when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !searchHints.contains(e.target)) {
-                searchHints.style.display = 'none';
-            }
-        });
-
-        // Modify your existing loadCourseDetails function to accept courseId parameter
-        // Fix the loadCourseDetails function
-        async function loadCourseDetails(id) {
-            try {
-                // If no id provided, just clear the details section
-                if (!id) {
-                    document.getElementById('courseDetails').innerHTML = '';
+                if (!courseId) {
+                    document.getElementById('courseDetails').innerHTML = '<p>Course ID not provided</p>';
                     return;
                 }
 
-                const response = await fetch(`http://localhost:5000/api/courses/${id}`);
+                const response = await fetch(`http://localhost:5000/api/courses/${courseId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch course details');
+                }
+
                 const data = await response.json();
+                if (!data.success || !data.course) {
+                    throw new Error('Course data not found');
+                }
+
                 const course = data.course;
-        
-                // Show enroll button based on login status without redirect
+                console.log('Course data:', course); // Debug log
+
+                // Show enroll button based on login status
                 const user = JSON.parse(localStorage.getItem('user'));
                 const enrollButton = user ? 
-                    `<button class="enroll-btn" onclick="enrollCourse('${id}')">Send Enrollment Request</button>` : 
+                    `<button class="enroll-btn" onclick="enrollCourse('${courseId}')">Send Enrollment Request</button>` : 
                     `<button class="enroll-btn" onclick="showLoginMessage()">Login to Enroll</button>`;
-        
+
                 document.getElementById('courseDetails').innerHTML = `
                     <div class="course-header">
-                        <img src="${course.image}" alt="${course.title}" class="course-image">
+                        <img src="${course.gallery.image}" alt="${course.overview.title}" class="course-image">
                         <div class="course-info">
-                            <h1>${course.title}</h1>
-                            <p class="mentor-info">
-                                <i class="fas fa-user"></i> ${course.mentorName}
-                            </p>
+                            <h1>${course.overview.title}</h1>
+                            <div class="mentor-details">
+                                <h3>Mentor Information</h3>
+                                <p><i class="fas fa-user"></i> ${course.mentor?.name || 'Not Available'}</p>
+                                <p><i class="fas fa-envelope"></i> ${course.mentor?.email || 'Not Available'}</p>
+                            </div>
                             <p class="course-category">
-                                <i class="fas fa-tag"></i> ${course.category}
+                                <i class="fas fa-tag"></i> ${course.overview.category}
                             </p>
-                            <p class="course-description">${course.description}</p>
+                            <p class="course-description">${course.overview.description}</p>
                         </div>
                     </div>
         
@@ -271,41 +222,57 @@
                 `;
             } catch (error) {
                 console.error('Error loading course details:', error);
+                document.getElementById('courseDetails').innerHTML = '<p>Error loading course details</p>';
             }
         }
 
-        // Add this function to show a message instead of redirecting
+        // Keep only these essential functions
         function showLoginMessage() {
             alert('Please login to enroll in this course');
         }
 
-        // Modify enrollCourse function to handle non-logged in state without redirect
         async function enrollCourse(courseId) {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user) {
-                showLoginMessage(); // Shows a message instead of redirecting
+                showLoginMessage();
                 return;
             }
 
             try {
-                const response = await fetch('http://localhost:5000/api/enrollment/request', {
+                console.log('Sending enrollment request:', {
+                    courseId,
+                    plan: selectedPlan,
+                    userId: user.id
+                });
+
+                const response = await fetch('http://localhost:5000/api/courses/enroll', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `${user.id}` // Ensure it's a string
+                    },
                     body: JSON.stringify({
-                        courseId,
-                        menteeId: user._id,
-                        plan: selectedPlan
+                        courseId: courseId,
+                        plan: selectedPlan,
+                        userId: user.id // Changed from menteeId to userId to match server expectation
                     })
                 });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Server error');
+                }
 
                 const data = await response.json();
                 if (data.success) {
                     alert('Enrollment request sent successfully!');
+                    window.location.href = 'dashboard.html';
                 } else {
-                    throw new Error(data.message);
+                    throw new Error(data.message || 'Failed to enroll');
                 }
             } catch (error) {
-                alert('Error sending enrollment request: ' + error.message);
+                console.error('Enrollment error:', error);
+                alert(`Failed to send enrollment request: ${error.message}`);
             }
         }
 
@@ -320,7 +287,9 @@
             })`).classList.add('selected');
         }
 
+        // Load course details when page loads
         window.addEventListener('DOMContentLoaded', loadCourseDetails);
     </script>
 </body>
 </html>
+

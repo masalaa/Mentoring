@@ -1,0 +1,54 @@
+/* Base Styles */
+:root {
+    --white: #ffffff;
+    --gray: #f5f6fa;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    line-height: 1.6;
+}
+
+/* Common Layout Structures */
+.mentor-content {
+    padding-top: 80px;
+    min-height: calc(100vh - 60px);
+    position: relative;
+    z-index: 1;
+}
+
+.dashboard-welcome {
+    padding: 3rem;
+    margin: 2rem auto;
+    max-width: 1200px;
+    border-radius: 20px;
+    color: var(--white);
+}
+
+.welcome-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Common Components */
+.card-base {
+    padding: 1.5rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-base {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
