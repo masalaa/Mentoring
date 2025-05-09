@@ -1,41 +1,102 @@
-// ... existing code ...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Mentoring</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/search-results.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="search-container">
+        <div class="search-input-group">
+            <input type="text" class="enhanced-search" placeholder="Search for courses...">
+            <button class="search-btn">
+                <i class="fas fa-search"></i>
+                Search
+            </button>
+        </div>
+        
+        <div class="filters-section">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i class="fas fa-th-large"></i>
+                    Category
+                </label>
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="programming">Programming</option>
+                    <option value="design">Design</option>
+                    <option value="business">Business</option>
+                </select>
+            </div>
 
-window.addEventListener('DOMContentLoaded', async function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchTerm = urlParams.get('term');
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i class="fas fa-tag"></i>
+                    Price
+                </label>
+                <select class="filter-select" id="priceFilter">
+                    <option value="">All Prices</option>
+                    <option value="free">Free</option>
+                    <option value="paid">Paid</option>
+                </select>
+            </div>
 
-    if (searchTerm) {
-        try {
-            const response = await fetch(`http://localhost:5000/api/courses/search?term=${searchTerm}`, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const data = await response.json();
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i class="fas fa-sort"></i>
+                    Sort By
+                </label>
+                <select class="filter-select" id="sortOption">
+                    <option value="relevance">Relevance</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Rating</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-            if (data.courses && data.courses.length > 0) {
-                document.getElementById('courseDetails').innerHTML = data.courses.map(course => `
-                    <div class="course-header">
-                        <img src="${course.image}" alt="${course.title}" class="course-image">
-                        <div class="course-info">
-                            <h1>${course.title}</h1>
-                            <p class="mentor-info">
-                                <i class="fas fa-user"></i> ${course.mentorName}
-                            </p>
-                            <p class="course-category">
-                                <i class="fas fa-tag"></i> ${course.category}
-                            </p>
-                            <p class="course-description">${course.description}</p>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                document.getElementById('courseDetails').innerHTML = '<div>No courses found</div>';
-            }
-        } catch (error) {
-            console.error('Error loading search results:', error);
-        }
-    }
-});
+    <div class="results-info">
+        <div id="resultsCount"></div>
+    </div>
 
-// ... existing code ...
+    <div id="searchResults" class="results-grid"></div>
+    
+    <div id="noResults" class="no-results" style="display: none;">
+        <i class="fas fa-search fa-3x"></i>
+        <h2>No Results Found</h2>
+        <p>Try adjusting your search criteria</p>
+    </div>
+
+    <div id="loadingSpinner" class="loading-spinner">
+        <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+        <p>Searching courses...</p>
+    </div>
+
+    <div class="db-error" style="display: none;">
+        <i class="fas fa-database"></i>
+        <h3>Database Error</h3>
+        <p>Unable to fetch courses from the database. Please try again later.</p>
+        <button onclick="retryFetch()">
+            <i class="fas fa-sync"></i>
+            Retry Connection
+        </button>
+    </div>
+</div>
+<script>
+const category = document.getElementById('categoryFilter').value;
+const price = document.getElementById('priceFilter').value;
+const sort = document.getElementById('sortOption').value;
+
+const url = `/api/courses/search?term=${encodeURIComponent(searchTerm)}&category=${category}&price=${price}&sort=${sort}`;
+
+const response = await fetch(url);
+</script>
+
+<script src="js/search-results.js"></script>
+</body>
+</html>
+

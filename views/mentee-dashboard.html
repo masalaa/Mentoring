@@ -3,58 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mentee Dashboard - Mentoring Platform</title>
-    
-    <!-- External APIs -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://meet.jit.si/external_api.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <title>Mentee Dashboard</title>
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.css' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Update CSS paths -->
-    <link rel="stylesheet" href="styles/dashboard.css">
 </head>
 <body>
     <div class="dashboard-layout">
         <nav class="sidebar">
             <div class="user-profile">
-                <img src="assets/images/default-avatar.png" alt="Profile" class="profile-image">
-                <h3 class="user-name">Welcome, <span id="userName">Mentee</span></h3>
+                <img src="../assets/images/default-avatar.png" alt="Profile" class="profile-image">
+                <h3 id="userName">Welcome!</h3>
             </div>
             <div class="nav-links">
-                <a href="#dashboard" class="nav-link active">
-                    <i class="fas fa-home"></i> Dashboard
+                <a href="#overview" class="nav-link active" data-section="overview">
+                    <i class="fas fa-home"></i> Overview
                 </a>
-                <a href="#schedule" class="nav-link">
-                    <i class="fas fa-calendar-alt"></i> Schedule Sessions
+                <a href="#schedule" class="nav-link" data-section="schedule">
+                    <i class="fas fa-calendar"></i> Schedule
                 </a>
-                <a href="#meetings" class="nav-link">
-                    <i class="fas fa-video"></i> Video Sessions
+                <a href="#meetings" class="nav-link" data-section="meetings">
+                    <i class="fas fa-video"></i> Meetings
                 </a>
-                <a href="#courses" class="nav-link">
+                <a href="#courses" class="nav-link" data-section="courses">
                     <i class="fas fa-book"></i> My Courses
                 </a>
-                <a href="#chat" class="nav-link">
+                <a href="#messages" class="nav-link" data-section="messages">
                     <i class="fas fa-comments"></i> Messages
                 </a>
             </div>
         </nav>
 
         <main class="main-content">
+            <section id="overview" class="dashboard-section active">
+                <h2>Dashboard Overview</h2>
+                <div class="overview-cards">
+                    <div class="card upcoming-sessions">
+                        <h3>Upcoming Sessions</h3>
+                        <div id="upcomingSessions"></div>
+                    </div>
+                    <div class="card enrolled-courses">
+                        <h3>My Courses</h3>
+                        <div id="enrolledCourses"></div>
+                    </div>
+                </div>
+            </section>
+
             <section id="schedule" class="dashboard-section">
-                <h2>Schedule Mentoring Sessions</h2>
+                <h2>Schedule Sessions</h2>
                 <div class="schedule-container">
                     <div class="calendar-wrapper">
                         <div id="calendar"></div>
                     </div>
                     <div class="booking-form">
                         <h3>Book New Session</h3>
-                        <form id="sessionBooking">
+                        <form id="sessionBookingForm">
                             <div class="form-group">
                                 <label>Select Mentor</label>
-                                <select id="mentorSelect" required>
-                                    <option value="">Choose a mentor...</option>
-                                </select>
+                                <select id="mentorSelect" required></select>
                             </div>
                             <div class="form-group">
                                 <label>Date & Time</label>
@@ -68,10 +74,6 @@
                                     <option value="90">1.5 hours</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label>Topic</label>
-                                <input type="text" id="sessionTopic" placeholder="What would you like to discuss?" required>
-                            </div>
                             <button type="submit" class="book-btn">
                                 <i class="fas fa-calendar-plus"></i> Book Session
                             </button>
@@ -81,24 +83,20 @@
             </section>
 
             <section id="meetings" class="dashboard-section">
-                <h2>Video Sessions</h2>
-                <div class="upcoming-sessions">
-                    <h3>Upcoming Sessions</h3>
-                    <div id="sessionsList" class="sessions-grid"></div>
-                </div>
-                <div class="meeting-container" style="display: none;">
-                    <div id="meet" class="video-container"></div>
+                <h2>Video Meetings</h2>
+                <div class="meeting-container">
+                    <div id="meetingRoom" class="video-container"></div>
                     <div class="meeting-controls">
-                        <button class="control-btn" id="micBtn">
+                        <button class="control-btn" id="toggleAudio">
                             <i class="fas fa-microphone"></i>
                         </button>
-                        <button class="control-btn" id="cameraBtn">
+                        <button class="control-btn" id="toggleVideo">
                             <i class="fas fa-video"></i>
                         </button>
-                        <button class="control-btn" id="shareBtn">
+                        <button class="control-btn" id="toggleScreen">
                             <i class="fas fa-desktop"></i>
                         </button>
-                        <button class="control-btn end-call" id="endCallBtn">
+                        <button class="control-btn end-call" id="endCall">
                             <i class="fas fa-phone-slash"></i>
                         </button>
                     </div>
@@ -107,7 +105,8 @@
         </main>
     </div>
 
-    <!-- Update script path -->
-    <script src="js/mentee-dashboard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://meet.jit.si/external_api.js"></script>
+    <script src="../js/mentee-dashboard.js"></script>
 </body>
 </html>

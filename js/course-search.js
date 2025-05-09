@@ -18,18 +18,25 @@ searchInput.addEventListener('input', (e) => {
     }
 });
 
+// Add form submit handler
+const searchForm = document.querySelector('#searchForm');
+if (searchForm) {
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm.length >= 2) {
+            fetchSearchResults(searchTerm);
+        }
+    });
+}
+
+// Update fetchSearchResults function
 async function fetchSearchResults(searchTerm) {
     try {
         const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) {
-            window.location.href = 'login.html';
-            return;
-        }
-
-        // Updated API endpoint to match MongoDB search
         const response = await fetch(`http://localhost:5000/api/courses/search?term=${encodeURIComponent(searchTerm)}`, {
             headers: {
-                'Authorization': `Bearer ${user.token}`,
+                'Authorization': `Bearer ${user?.token || ''}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -39,14 +46,16 @@ async function fetchSearchResults(searchTerm) {
         }
 
         const data = await response.json();
-        console.log('Search results:', data); // Debug log
-
-        if (!data.courses) {
-            throw new Error('No courses data received');
-        }
-
-        displaySearchSuggestions(data.courses, searchTerm);
-        displaySearchResults(data.courses);
+        
+        // Filter for published courses only
+        const publishedCourses = data.courses.filter(course => course.published === true);
+        
+        displaySearchSuggestions(publishedCourses, searchTerm);
+        displaySearchResults(publishedCourses);
+        
+        // Update URL with search term
+        const newUrl = `${window.location.pathname}?term=${encodeURIComponent(searchTerm)}`;
+        window.history.pushState({ searchTerm }, '', newUrl);
     } catch (error) {
         console.error('Search error:', error);
         searchResults.innerHTML = `
@@ -55,6 +64,33 @@ async function fetchSearchResults(searchTerm) {
                 <h2>Search failed</h2>
                 <p>Please try again later</p>
             </div>`;
+    }
+}
+
+// Update showCourseDetails function
+async function showCourseDetails(courseId) {
+    try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(`http://localhost:5000/api/courses/${courseId}`, {
+            headers: {
+                'Authorization': `Bearer ${user?.token || ''}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch course details');
+        }
+
+        const course = await response.json();
+        if (course.published) {
+            window.location.href = `course-details.html?id=${courseId}`;
+        } else {
+            throw new Error('Course not available');
+        }
+    } catch (error) {
+        console.error('Error fetching course details:', error);
+        alert('Unable to view course details at this time.');
     }
 }
 
@@ -140,5 +176,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchTerm) {
         searchInput.value = searchTerm;
         fetchSearchResults(searchTerm);
+    }
+});
+
+document.querySelector('.search-btn').addEventListener('click', async () => {
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput.value.trim();
+    
+    if (searchTerm.length < 2) {
+        showNotification('Please enter at least 2 characters');
+        return;
+    }
+
+    // Add loading animation
+    document.querySelector('.search-container').classList.add('searching');
+    
+    try {
+        const response = await fetch('http://localhost:5000/api/courses/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ searchTerm })
+        });
+
+        const data = await response.json();
+        
+        // Animate transition
+        document.body.classList.add('fade-out');
+        setTimeout(() => {
+            window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}`;
+        }, 500);
+
+    } catch (error) {
+        showNotification('Search failed. Please try again.');
     }
 });

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call - Mentoring</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Add after existing links -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="blue-theme">
+    <div class="video-call-container">
+        <div class="video-call-header">
+            <h2 id="meetingTitle">Video Call Session</h2>
+            <div class="meeting-info">
+                <span id="meetingTime"></span>
+                <span id="hostName"></span>
+            </div>
+        </div>
+
+        <div class="video-controls">
+            <div class="control-options">
+                <label class="control-option">
+                    <input type="checkbox" id="muteAudio" checked>
+                    <i class="fas fa-microphone-slash"></i> Mute Audio
+                </label>
+                <label class="control-option">
+                    <input type="checkbox" id="muteVideo">
+                    <i class="fas fa-video-slash"></i> Disable Video
+                </label>
+            </div>
+            <div class="control-buttons">
+                <button id="startMeetBtn" class="control-btn primary">
+                    <i class="fas fa-video"></i> Start Meeting
+                </button>
+                <button id="copyLinkBtn" class="control-btn secondary">
+                    <i class="fas fa-copy"></i> Copy Link
+                </button>
+                <button id="backToDashboard" class="control-btn warning">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+
+        <div id="meetingFrame" class="meeting-frame">
+            <div class="meeting-placeholder">
+                <i class="fas fa-video"></i>
+                <div class="meeting-info">
+                    <div class="meeting-title">Mentoring Session</div>
+                    <div class="meeting-datetime">May 9, 2025 • 12:04 AM</div>
+                    <div class="meeting-host">
+                        <i class="fas fa-user-circle"></i>
+                        Host: Athish
+                    </div>
+                </div>
+                <div class="meeting-status">
+                    <i class="fas fa-circle"></i>
+                    Ready to start your meeting
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get meeting details from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const meetingName = urlParams.get('name') || 'New Meeting';
+        document.getElementById('meetingTitle').textContent = meetingName;
+        document.getElementById('meetingTime').textContent = new Date().toLocaleString();
+
+        // Get host info
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            document.getElementById('hostName').textContent = `Host: ${user.name}`;
+        }
+
+        // Start meeting handler
+        document.getElementById('startMeetBtn').addEventListener('click', () => {
+            const muteAudio = document.getElementById('muteAudio').checked;
+            const muteVideo = document.getElementById('muteVideo').checked;
+
+            // Construct Google Meet URL with preferences
+            let meetUrl = 'https://meet.google.com/new?';
+            if (muteAudio) meetUrl += '&hs=122';
+            if (muteVideo) meetUrl += '&pli=1';
+
+            // Store meeting details
+            const meetings = JSON.parse(localStorage.getItem('meetings') || '[]');
+            meetings.push({
+                name: meetingName,
+                date: new Date().toISOString(),
+                host: user?.email || 'Unknown',
+                settings: { muteAudio, muteVideo }
+            });
+            localStorage.setItem('meetings', JSON.stringify(meetings));
+
+            // Open Google Meet
+            window.open(meetUrl, '_blank');
+        });
+
+        // Copy link handler
+        document.getElementById('copyLinkBtn').addEventListener('click', () => {
+            const meetLink = 'https://meet.google.com/new';
+            navigator.clipboard.writeText(meetLink)
+                .then(() => {
+                    const btn = document.getElementById('copyLinkBtn');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fas fa-copy"></i> Copy Link';
+                    }, 2000);
+                });
+        });
+
+        // Back button handler
+        document.getElementById('backToDashboard').addEventListener('click', () => {
+            window.location.href = 'mentor.html';
+        });
+    </script>
+</body>
+</html>

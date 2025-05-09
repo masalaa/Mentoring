@@ -144,6 +144,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Add this to your existing main.js
 document.addEventListener('DOMContentLoaded', () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const scheduleLink = document.querySelector('.schedule-link');
+    
+    if (user) {
+        // Show schedule link when logged in
+        if (scheduleLink) scheduleLink.style.display = 'inline-block';
+    }
+    const authNav = document.querySelector('.auth-nav');
+    const profileLink = document.querySelector('.profile-link');
+    const menteeDashboard = document.querySelector('.mentee-dashboard');
+    const mentorDashboard = document.querySelector('.mentor-dashboard');
+    const loginBtn = document.querySelector('.login-btn');
+    const signupBtn = document.querySelector('.signup-btn');
+    const signoutBtn = document.querySelector('.signout-btn');
+
+    if (user) {
+        // Hide login/signup buttons
+        loginBtn.style.display = 'none';
+        signupBtn.style.display = 'none';
+        
+        // Show profile and logout
+        profileLink.style.display = 'inline-block';
+        signoutBtn.style.display = 'inline-block';
+
+        // Show appropriate dashboard link
+        if (user.role === 'mentee') {
+            menteeDashboard.style.display = 'inline-block';
+        } else if (user.role === 'mentor') {
+            mentorDashboard.style.display = 'inline-block';
+        }
+    }
+
+    // Handle sign out
+    signoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+    });
+
+    // Handle enrollment buttons
+    const enrollBtns = document.querySelectorAll('.enroll-btn');
+    enrollBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else if (user.role === 'mentee') {
+                const courseCard = btn.closest('.enrollment-card');
+                const courseName = courseCard.querySelector('h3').textContent;
+                window.location.href = `mentee-dashboard.html#courses?enroll=${encodeURIComponent(courseName)}`;
+            }
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
     const mentorLink = document.querySelector('a[href="#mentor"]');
     
     mentorLink.addEventListener('click', (e) => {
@@ -216,3 +272,36 @@ function showMentorMenu() {
         }, 300);
     });
 }
+
+// Add after existing DOMContentLoaded events
+document.addEventListener('DOMContentLoaded', () => {
+    const calendarEl = document.getElementById('calendar');
+    if (calendarEl) {
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek'
+            },
+            buttonText: {
+                today: 'Today',
+                month: 'Month',
+                week: 'Week'
+            },
+            height: 'auto',
+            selectable: true,
+            select: function(info) {
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (!user) {
+                    showLoginAlert();
+                    return;
+                }
+                if (user.role === 'mentee') {
+                    window.location.href = `mentee-dashboard.html#schedule?date=${info.startStr}`;
+                }
+            }
+        });
+        calendar.render();
+    }
+});

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mentor Dashboard - Mentoring</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -14,8 +15,12 @@
                 <h1>Mentoring</h1>
             </div>
             <div class="nav-links">
-                <a href="mentor.html" class="active">Dashboard</a>
+                <a href="mentor.html">Dashboard</a>
                 <a href="business.html">My Business</a>
+                <a href="#" id="videoCallBtn">
+                    <i class="fas fa-video"></i>
+                    Video Call
+                </a>
             </div>
         </div>
         <div class="nav-right">
@@ -26,23 +31,57 @@
     <main class="mentor-content">
         <div class="container">
             <h2 id="welcomeMessage">Welcome to Mentor Dashboard</h2>
-            <!-- Add your mentor dashboard content here -->
         </div>
     </main>
 
+    <!-- Video Call Modal -->
+    <div id="hostModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Start Video Meeting</h3>
+            <div class="form-group">
+                <label>Meeting Name</label>
+                <input type="text" id="meetingName" class="form-input" placeholder="Enter meeting name">
+            </div>
+            <div class="button-group">
+                <button id="startAsHostBtn" class="primary-btn">
+                    <i class="fas fa-video"></i> Start Meeting
+                </button>
+                <button id="cancelMeetingBtn" class="secondary-btn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Get user data and display welcome message
-        window.addEventListener('DOMContentLoaded', () => {
-            const userData = JSON.parse(localStorage.getItem('user'));
-            if (userData && userData.name) {
-                document.getElementById('welcomeMessage').textContent = `Welcome, ${userData.name}`;
-            }
+        // Video call functionality
+        document.getElementById('videoCallBtn').addEventListener('click', () => {
+            const now = new Date();
+            const defaultName = `Mentoring Session - ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+            document.getElementById('meetingName').value = defaultName;
+            document.getElementById('hostModal').style.display = 'block';
         });
 
-        // Handle sign out
-        document.getElementById('signoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
+        document.getElementById('startAsHostBtn').addEventListener('click', () => {
+            const meetingName = document.getElementById('meetingName').value.trim();
+            if (!meetingName) {
+                alert('Please enter a meeting name');
+                return;
+            }
+
+            // Redirect to video call page with meeting name
+            window.location.href = `video-call.html?name=${encodeURIComponent(meetingName)}`;
+        });
+
+        // Close modal handlers
+        document.getElementById('cancelMeetingBtn').addEventListener('click', () => {
+            document.getElementById('hostModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target.className === 'modal') {
+                document.getElementById('hostModal').style.display = 'none';
+            }
         });
     </script>
 </body>

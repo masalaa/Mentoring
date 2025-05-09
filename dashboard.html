@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mentoring Platform</title>
+    
+    <!-- External APIs -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://meet.jit.si/external_api.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <nav class="sidebar">
+            <div class="user-profile">
+                <img src="assets/images/default-avatar.png" alt="Profile" class="profile-image">
+                <h3 class="user-name">Welcome, <span id="userName">User</span></h3>
+            </div>
+            <div class="nav-links">
+                <a href="#calendar" class="nav-link active">
+                    <i class="fas fa-calendar-alt"></i> Calendar
+                </a>
+                <a href="#meetings" class="nav-link">
+                    <i class="fas fa-video"></i> Meetings
+                </a>
+                <a href="#chat" class="nav-link">
+                    <i class="fas fa-comments"></i> Chat
+                </a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <section id="calendar" class="dashboard-section active">
+                <h2>Schedule Sessions</h2>
+                <div class="calendar-container">
+                    <div id="googleCalendar"></div>
+                    <div class="schedule-actions">
+                        <button class="action-btn" onclick="initializeGoogleCalendar()">
+                            <i class="fas fa-plus"></i> New Session
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="meetings" class="dashboard-section">
+                <h2>Video Meetings</h2>
+                <div class="meeting-container">
+                    <div id="meet" class="video-container"></div>
+                    <div class="meeting-controls">
+                        <button class="control-btn" id="micBtn">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="control-btn" id="cameraBtn">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button class="control-btn end-call">
+                            <i class="fas fa-phone-slash"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="chat" class="dashboard-section">
+                <h2>Chat</h2>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="messageInput" placeholder="Type your message...">
+                        <button class="send-btn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="js/dashboard.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/video-chat.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>

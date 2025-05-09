@@ -90,58 +90,56 @@ app.post('/api/signup', async (req, res) => {
     }
 });
 
-// // Update publish course route
-// app.post('/api/publish-course', async (req, res) => {
-//     try {
-//         const { mentorId, courseData } = req.body;
-//         const mentor = await Mentor.findById(mentorId);
+// Update the publish course route
+app.post('/api/publish-course', async (req, res) => {
+    try {
+        const { mentorId, courseData } = req.body;
+        const mentor = await Mentor.findById(mentorId);
+        
+        if (!mentor) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Mentor not found' 
+            });
+        }
 
-//         if (!mentor) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: 'Mentor not found'
-//             });
-//         }
+        const course = new Course({
+            mentorId: mentor._id,
+            mentor: {
+                id: mentor._id,
+                name: mentor.name,
+                email: mentor.email
+            },
+            overview: courseData.overview,
+            pricing: courseData.pricing,
+            gallery: courseData.gallery,
+            status: 'active',
+            createdAt: new Date()
+        });
 
-//         // Create new course with proper structure
-//         const newCourse = new Course({
-//             mentorId: mentorId,
-//             mentor: {
-//                 id: mentorId,
-//                 email: mentor.email,
-//                 name: mentor.name
-//             },
-//             overview: courseData.overview,
-//             pricing: courseData.pricing,
-//             gallery: courseData.gallery,
-//             status: 'active'
-//         });
+        const savedCourse = await course.save();
+        
+        if (!mentor.courses) {
+            mentor.courses = [];
+        }
+        mentor.courses.push(savedCourse._id);
+        await mentor.save();
 
-//         // Save to course collection
-//         const savedCourse = await newCourse.save();
+        res.json({ 
+            success: true, 
+            message: 'Course published successfully',
+            courseId: savedCourse._id 
+        });
 
-//         // Update mentor's courses array
-//         await Mentor.findByIdAndUpdate(
-//             mentorId,
-//             { $push: { courses: savedCourse._id } },
-//             { new: true }
-//         );
-
-//         res.status(200).json({
-//             success: true,
-//             message: 'Course published successfully',
-//             courseId: savedCourse._id
-//         });
-
-//     } catch (error) {
-//         console.error('Error publishing course:', error);
-//         res.status(500).json({
-//             success: false,
-//             message: '',
-//             error: error.message
-//         });
-//     }
-// });
+    } catch (err) {
+        console.error('Course publish error:', err);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error publishing course', 
+            error: err.message 
+        });
+    }
+});
 
 // Signin route
 app.post('/api/signin', async (req, res) => {
@@ -524,6 +522,57 @@ app.post('/api/add-sample-data', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error adding sample data',
+            error: error.message
+        });
+    }
+});
+
+app.post('/api/courses/create', async (req, res) => {
+    try {
+        const courseData = req.body;
+        
+        // Find mentor first to verify and get details
+        const mentor = await Mentor.findById(courseData.mentorId);
+        if (!mentor) {
+            return res.status(404).json({
+                success: false,
+                message: 'Mentor not found'
+            });
+        }
+
+        // Create course with actual data
+        const course = new Course({
+            mentorId: mentor._id,
+            mentor: {
+                id: mentor._id,
+                email: mentor.email,
+                name: mentor.name
+            },
+            overview: courseData.overview,
+            pricing: courseData.pricing,
+            gallery: courseData.gallery,
+            status: courseData.status,
+            createdAt: new Date()
+        });
+
+        const savedCourse = await course.save();
+
+        // Update mentor's courses array
+        await Mentor.findByIdAndUpdate(
+            mentor._id,
+            { $push: { courses: savedCourse._id } }
+        );
+
+        res.status(201).json({
+            success: true,
+            courseId: savedCourse._id,
+            message: 'Course created successfully'
+        });
+    } catch (error) {
+        console.error('Error creating course:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating course',
             error: error.message
         });
     }

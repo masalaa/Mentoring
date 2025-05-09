@@ -12,11 +12,46 @@
     <div class="search-bar-container">
         <i class="fas fa-search search-icon"></i>
         <input type="text" class="search-bar" placeholder="Search for courses..." id="searchInput">
-        <button class="search-submit" id="searchSubmit">
+        <button class="search-submit" id="searchSubmit" onclick="handleSearch()">
             <i class="fas fa-arrow-right"></i>
         </button>
         <div class="search-suggestions" id="searchSuggestions"></div>
     </div>
+
+    <!-- Add this script section before closing body tag -->
+    <script>
+    function handleSearch() {
+        const searchInput = document.getElementById('searchInput');
+        const searchTerm = searchInput.value.trim();
+        
+        if (searchTerm.length >= 2) {
+            // Add loading animation
+            document.querySelector('.search-submit i').classList.add('fa-spinner', 'fa-spin');
+            document.querySelector('.search-submit').disabled = true;
+            
+            // Redirect to search results with animation
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}`;
+            }, 300);
+        } else {
+            // Show error message
+            const suggestions = document.getElementById('searchSuggestions');
+            suggestions.innerHTML = '<div class="error-message">Please enter at least 2 characters</div>';
+            suggestions.style.display = 'block';
+            setTimeout(() => {
+                suggestions.style.display = 'none';
+            }, 2000);
+        }
+    }
+    
+    // Add enter key support
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    });
+    </script>
 
     <div class="search-container">
         <div class="search-header">

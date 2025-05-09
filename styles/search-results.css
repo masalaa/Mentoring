@@ -1,0 +1,513 @@
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.course-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideUp 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.price-box {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    transition: transform 0.3s ease;
+}
+
+.price-box:hover {
+    transform: scale(1.02);
+}
+
+.course-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.course-actions button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.enroll-btn {
+    background: #2980b9;
+    color: white;
+    flex: 2;
+}
+
+.details-btn {
+    background: #ecf0f1;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.search-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    position: relative;
+}
+
+.search-input-group {
+    margin-bottom: 35px;  /* Increased margin */
+}
+
+.filters-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 35px 0;  /* Increased margin */
+    padding: 20px 25px;  /* Increased padding */
+    background: linear-gradient(145deg, #ffffff, #f0f4f8);
+    border-radius: 15px;
+    box-shadow: 
+        8px 8px 16px #d1d9e6,
+        -8px -8px 16px #ffffff;
+}
+
+.filter-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;  /* Changed to column */
+    gap: 12px;  /* Adjusted gap */
+}
+
+.filter-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #34495e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 5px;  /* Added padding */
+}
+
+.search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(145deg, #ffffff, #f0f4f8);
+    border-radius: 20px;
+    padding: 6px;
+    box-shadow: 
+        12px 12px 24px #d1d9e6,
+        -12px -12px 24px #ffffff,
+        inset 2px 2px 5px rgba(255, 255, 255, 0.9),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.search-input-group:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 
+        15px 15px 30px #d1d9e6,
+        -15px -15px 30px #ffffff,
+        inset 2px 2px 5px rgba(255, 255, 255, 0.9),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.enhanced-search {
+    width: 100%;
+    padding: 18px 25px;
+    font-size: 18px;
+    border: none;
+    background: transparent;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.enhanced-search::placeholder {
+    color: #95a5a6;
+    font-weight: 400;
+}
+
+.search-btn {
+    margin-right: 6px;
+    padding: 15px 30px;
+    background: linear-gradient(145deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-btn i {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.search-btn:hover {
+    background: linear-gradient(145deg, #2980b9, #3498db);
+    transform: translateY(-2px);
+}
+
+.search-btn:hover i {
+    transform: scale(1.1);
+}
+
+.search-btn:active {
+    transform: translateY(1px);
+}
+
+.course-card {
+    max-width: 320px;
+    margin: 15px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 
+        8px 8px 16px #d1d9e6,
+        -8px -8px 16px #ffffff;
+}
+
+.course-content {
+    padding: 20px;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+}
+
+.course-image {
+    height: 180px;
+    position: relative;
+}
+
+.course-image::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 20px;
+    justify-items: center;
+}
+
+.price-box {
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #f8f9fa, #ffffff);
+    box-shadow: 
+        inset 4px 4px 8px #d1d9e6,
+        inset -4px -4px 8px #ffffff;
+}
+
+.course-actions {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.enroll-btn, .details-btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.enroll-btn {
+    background: linear-gradient(145deg, #3498db, #2980b9);
+    color: white;
+    box-shadow: 4px 4px 8px #d1d9e6;
+}
+
+.enroll-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 12px #d1d9e6;
+}
+
+.details-btn {
+    background: linear-gradient(145deg, #f0f4f8, #e6e9ef);
+    color: #2c3e50;
+}
+
+.course-highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.highlight-item {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #ffffff, #f0f4f8);
+    box-shadow: 
+        2px 2px 4px #d1d9e6,
+        -2px -2px 4px #ffffff;
+}
+
+.current-price {
+    font-size: 1.6em;
+    background: linear-gradient(145deg, #2980b9, #3498db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #e74c3c, #c0392b);
+    color: white;
+    font-weight: 600;
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.enhanced-search {
+    flex: 1;
+    padding: 18px 25px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    color: #2c3e50;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.enhanced-search:focus {
+    outline: none;
+    box-shadow: 
+        inset 6px 6px 12px #d1d9e6,
+        inset -6px -6px 12px #ffffff;
+}
+
+.search-btn {
+    padding: 15px 35px;
+    background: linear-gradient(145deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 6px 6px 12px #d1d9e6;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(145deg, #2980b9, #3498db);
+    box-shadow: 8px 8px 16px #d1d9e6;
+}
+
+.search-btn:active {
+    transform: translateY(1px);
+    box-shadow: 4px 4px 8px #d1d9e6;
+}
+
+.course-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 
+        8px 8px 16px #d1d9e6,
+        -8px -8px 16px #ffffff;
+    animation: slideUp 0.5s ease forwards;
+    margin-bottom: 30px;
+}
+
+.price-box {
+    background: linear-gradient(145deg, #ffffff, #f0f4f8);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 
+        inset 4px 4px 8px #d1d9e6,
+        inset -4px -4px 8px #ffffff;
+    margin: 15px 0;
+}
+
+.course-highlights {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    margin-top: 15px;
+}
+
+.highlight-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #7f8c8d;
+    padding: 8px 15px;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #ffffff, #f0f4f8);
+    box-shadow: 
+        4px 4px 8px #d1d9e6,
+        -4px -4px 8px #ffffff;
+}
+
+.highlight-item i {
+    color: #3498db;
+}
+
+mark {
+    background: linear-gradient(120deg, rgba(255,241,89,0.3) 0%, rgba(255,241,89,0.6) 100%);
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px 50px;
+    border-radius: 20px;
+    box-shadow: 
+        8px 8px 16px #d1d9e6,
+        -8px -8px 16px #ffffff;
+    z-index: 1000;
+}
+
+.loading-spinner i {
+    color: #3498db;
+    margin-bottom: 15px;
+}
+
+.loading-spinner p {
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 16px;
+    margin: 0;
+}
+
+.db-error {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.98);
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 
+        12px 12px 24px #d1d9e6,
+        -12px -12px 24px #ffffff;
+    z-index: 1000;
+    text-align: center;
+    min-width: 320px;
+    animation: fadeInError 0.3s ease-out;
+}
+
+.db-error i {
+    font-size: 3em;
+    color: #e74c3c;
+    margin-bottom: 15px;
+}
+
+.db-error h3 {
+    color: #2c3e50;
+    font-size: 1.4em;
+    margin: 0 0 10px 0;
+}
+
+.db-error p {
+    color: #7f8c8d;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+.db-error button {
+    padding: 12px 25px;
+    background: linear-gradient(145deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.db-error button:hover {
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 12px rgba(0,0,0,0.1);
+}
+
+@keyframes fadeInError {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.no-results {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px 50px;
+    border-radius: 20px;
+    box-shadow: 
+        8px 8px 16px #d1d9e6,
+        -8px -8px 16px #ffffff;
+    z-index: 1000;
+}
+
+.no-results i {
+    color: #95a5a6;
+    margin-bottom: 20px;
+}
+
+.no-results h2 {
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+}
+
+.no-results p {
+    color: #7f8c8d;
+    margin: 0;
+}

@@ -16,6 +16,10 @@
     
     <!-- Framer Motion -->
     <script src="https://unpkg.com/framer-motion/dist/framer-motion.js"></script>
+    
+    <!-- Add in head section -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.css' rel='stylesheet'>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 </head>
 <body>
     <header>
@@ -29,6 +33,9 @@
                     <a href="index.html" class="active">Home</a>
                     <a href="#mentor">Mentor</a>
                     <a href="#about">About</a>
+                    <a href="schedule.html" class="schedule-link" style="display: none;">
+                        <i class="fas fa-calendar"></i> Schedule
+                    </a>
                     <a href="profile.html" class="profile-link" style="display: none;">
                         <i class="fas fa-user-circle"></i> Profile
                     </a>
@@ -96,6 +103,33 @@
         <section id="contact" class="contact-section">
             <h2>Contact Us</h2>
             <p>Email: <a href="mailto:23z310@psgtech.ac.in">23z310@psgtech.ac.in</a></p>
+        </section>
+
+        <!-- Add after enrollment section -->
+        <section id="schedule" class="schedule-section">
+            <h2>Schedule Your Learning Journey</h2>
+            <div class="schedule-container">
+                <div class="calendar-wrapper">
+                    <div id="calendar"></div>
+                </div>
+                <div class="schedule-info">
+                    <div class="info-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <h3>Book Sessions</h3>
+                        <p>Schedule one-on-one sessions with expert mentors</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-clock"></i>
+                        <h3>Flexible Timing</h3>
+                        <p>Choose from various time slots that suit you</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-video"></i>
+                        <h3>Video Meetings</h3>
+                        <p>Connect through high-quality video sessions</p>
+                    </div>
+                </div>
+            </div>
         </section>
     </main>
 
