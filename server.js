@@ -12,8 +12,6 @@ app.use(express.static('public'));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     dbName: 'Mentoring'
 })
 .then(() => {
@@ -22,6 +20,10 @@ mongoose.connect(process.env.MONGODB_URI, {
     console.log('Available collections:', mongoose.connection.collections);
 })
 .catch(err => console.error('MongoDB connection error:', err));
+
+// Ensure mongoose.connect() is called only once
+// Remove any additional mongoose.connect() calls
+// If you need to connect to another database, use mongoose.createConnection()
 
 const User = require('./models/User');
 const Feedback = require('./models/feedback'); // Import the Feedback model
@@ -765,12 +767,16 @@ app.post('/api/mentor/accept-request', async (req, res) => {
 */
 
 // Connect to feedback.db
+// Ensure mongoose.connect() is called only once
 mongoose.connect('mongodb://localhost/feedback.db', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
 .then(() => console.log('Connected to feedback.db'))
 .catch(err => console.error('Database connection error:', err));
+
+// Remove any additional mongoose.connect() calls
+// If you need to connect to another database, use mongoose.createConnection()
 
 // Feedback storage endpoint
 app.post('/api/feedback', async (req, res) => {
