@@ -24,6 +24,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 .catch(err => console.error('MongoDB connection error:', err));
 
 const User = require('./models/User');
+const Feedback = require('./models/feedback'); // Import the Feedback model
 
 // Add these lines at the top with other requires
 const Mentor = require('./models/Mentor');
@@ -666,6 +667,18 @@ app.post('/api/courses/enroll', async (req, res) => {
 
         await enrollmentRequest.save();
 
+        // Update mentee's enrolledCourses array
+        await Mentee.findByIdAndUpdate(userId, {
+            $push: {
+                enrolledCourses: {
+                    courseId: courseId,
+                    plan: plan,
+                    status: 'pending',
+                    enrolledAt: new Date()
+                }
+            }
+        });
+
         res.json({
             success: true,
             message: 'Enrollment request sent successfully',
@@ -678,6 +691,98 @@ app.post('/api/courses/enroll', async (req, res) => {
             success: false,
             message: 'Error processing enrollment request'
         });
+    }
+});
+
+// Route to get enrollment requests for a mentor
+app.get('/api/mentor/enrollment-requests/:mentorId', async (req, res) => {
+    try {
+        const mentorId = req.params.mentorId;
+        console.log(`Fetching enrollment requests for mentorId: ${mentorId}`);
+
+        // Fetch requests from the database
+        const requests = await EnrollmentRequest.find({ status: 'pending' })
+            .populate({
+                path: 'courseId',
+                match: { mentorId: mentorId },
+                select: 'overview.title'
+            })
+            .populate('userId', 'name');
+
+        // Filter out requests where courseId is null (i.e., not matching mentorId)
+        const filteredRequests = requests.filter(request => request.courseId !== null);
+
+        console.log(`Found ${filteredRequests.length} requests`);
+
+        res.json({
+            success: true,
+            requests: filteredRequests
+        });
+    } catch (error) {
+        console.error('Error fetching enrollment requests:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching enrollment requests'
+        });
+    }
+});
+
+// Route to accept an enrollment request
+app.post('/api/mentor/accept-request', async (req, res) => {
+    try {
+        const { requestId } = req.body;
+        
+        const request = await EnrollmentRequest.findById(requestId);
+        if (!request) {
+            return res.status(404).json({
+                success: false,
+                message: 'Request not found'
+            });
+        }
+
+        request.status = 'approved';
+        await request.save();
+
+        // Update mentee's enrolledCourses status
+        await Mentee.updateOne(
+            { _id: request.userId, 'enrolledCourses.courseId': request.courseId },
+            { $set: { 'enrolledCourses.$.status': 'approved' } }
+        );
+
+        res.json({
+            success: true,
+            message: 'Request accepted successfully'
+        });
+    } catch (error) {
+        console.error('Error accepting request:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error accepting request'
+        });
+    }
+});
+
+// Feedback storage endpoint
+app.post('/api/feedback', async (req, res) => {
+    try {
+        const { userId, feedback } = req.body;
+        const newFeedback = new Feedback({ userId, message: feedback });
+        await newFeedback.save();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error storing feedback:', error);
+        res.status(500).json({ success: false, message: 'Error storing feedback' });
+    }
+});
+
+// Feedback retrieval endpoint
+app.get('/api/feedback', async (req, res) => {
+    try {
+        const feedbackList = await Feedback.find().populate('userId', 'name email');
+        res.json(feedbackList);
+    } catch (error) {
+        console.error('Error retrieving feedback:', error);
+        res.status(500).json({ success: false, message: 'Error retrieving feedback' });
     }
 });
 

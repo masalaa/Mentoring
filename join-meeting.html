@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Meeting - Mentoring</title>
+    <script src="https://meet.jit.si/external_api.js"></script> <!-- Jitsi API script -->
+</head>
+<body>
+    <h1>Join a Video Meeting</h1>
+    <form id="joinMeetingForm">
+        <input type="text" id="roomNameInput" placeholder="Enter Room Name" required>
+        <button type="submit">Join Meeting</button>
+    </form>
+
+    <div id="meet" style="margin-top: 20px;"></div> <!-- Jitsi Meet container -->
+
+    <script>
+        document.getElementById('joinMeetingForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const roomName = document.getElementById('roomNameInput').value.trim();
+            if (roomName) {
+                // Initialize Jitsi Meet with the entered room name
+                const domain = "meet.jit.si";
+                const options = {
+                    roomName: roomName,
+                    width: 700,
+                    height: 700,
+                    parentNode: document.querySelector('#meet')
+                };
+                const api = new JitsiMeetExternalAPI(domain, options);
+            } else {
+                alert('Please enter a valid Room Name.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -313,3 +313,21 @@
     background: var(--accent-color);
     transform: scale(1.05);
 }
+
+.previous-page-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin: 20px 0;
+    display: block;
+    width: fit-content;
+}
+
+.previous-page-btn:hover {
+    background-color: #2980b9;
+}

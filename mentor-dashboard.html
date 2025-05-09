@@ -1,0 +1,30 @@
+// ... existing code ...
+<section id="feedback-display" class="feedback-display-section">
+    <h2>Recent Feedback</h2>
+    <ul id="feedbackList">
+        <!-- Feedback messages will be appended here -->
+    </ul>
+</section>
+
+<script>
+    // Fetch feedback from the server
+    async function fetchFeedback() {
+        try {
+            const response = await fetch('http://localhost:5000/api/feedback');
+            const feedbackData = await response.json();
+            const feedbackList = document.getElementById('feedbackList');
+            feedbackList.innerHTML = ''; // Clear existing feedback
+            feedbackData.forEach(feedback => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${feedback.userId.name}: ${feedback.message}`;
+                feedbackList.appendChild(listItem);
+            });
+        } catch (error) {
+            console.error('Error fetching feedback:', error);
+        }
+    }
+
+    // Call fetchFeedback on page load
+    window.addEventListener('load', fetchFeedback);
+</script>
+// ... existing code ...

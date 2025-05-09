@@ -3,16 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Mentoring Platform</title>
-    
-    <!-- External APIs -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://meet.jit.si/external_api.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles/dashboard.css">
+    <title>Dashboard - Mentoring</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="https://meet.jit.si/external_api.js"></script> <!-- Jitsi API script -->
+    <style>
+        /* Add custom styles for the dashboard */
+        .dashboard-layout {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+        }
+        .user-profile {
+            text-align: center;
+        }
+        .profile-image {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .jitsi-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-layout">
@@ -20,69 +50,86 @@
             <div class="user-profile">
                 <img src="assets/images/default-avatar.png" alt="Profile" class="profile-image">
                 <h3 class="user-name">Welcome, <span id="userName">User</span></h3>
-            </div>
-            <div class="nav-links">
-                <a href="#calendar" class="nav-link active">
-                    <i class="fas fa-calendar-alt"></i> Calendar
-                </a>
-                <a href="#meetings" class="nav-link">
-                    <i class="fas fa-video"></i> Meetings
-                </a>
-                <a href="#chat" class="nav-link">
-                    <i class="fas fa-comments"></i> Chat
-                </a>
+                <p>Email: <span id="userEmail">user@example.com</span></p>
             </div>
         </nav>
 
         <main class="main-content">
-            <section id="calendar" class="dashboard-section active">
-                <h2>Schedule Sessions</h2>
-                <div class="calendar-container">
-                    <div id="googleCalendar"></div>
-                    <div class="schedule-actions">
-                        <button class="action-btn" onclick="initializeGoogleCalendar()">
-                            <i class="fas fa-plus"></i> New Session
-                        </button>
-                    </div>
-                </div>
+            <div class="welcome-message">
+                <h1>Welcome to Your Dashboard</h1>
+                <p>Start your video call session below.</p>
+            </div>
+
+            <section id="video-call" class="video-call-section">
+                <h2>Video Call</h2>
+                <div class="jitsi-container" id="meet"></div> <!-- Jitsi Meet container -->
             </section>
 
-            <section id="meetings" class="dashboard-section">
-                <h2>Video Meetings</h2>
-                <div class="meeting-container">
-                    <div id="meet" class="video-container"></div>
-                    <div class="meeting-controls">
-                        <button class="control-btn" id="micBtn">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <button class="control-btn" id="cameraBtn">
-                            <i class="fas fa-video"></i>
-                        </button>
-                        <button class="control-btn end-call">
-                            <i class="fas fa-phone-slash"></i>
-                        </button>
-                    </div>
-                </div>
+            <section id="feedback" class="feedback-section" style="display: none;">
+                <h2>Meeting Feedback</h2>
+                <form id="feedbackForm">
+                    <textarea id="feedbackInput" placeholder="Enter your feedback" required></textarea>
+                    <button type="submit">Submit Feedback</button>
+                </form>
             </section>
 
-            <section id="chat" class="dashboard-section">
-                <h2>Chat</h2>
-                <div class="chat-container">
-                    <div class="chat-messages" id="chatMessages"></div>
-                    <div class="chat-input-container">
-                        <input type="text" id="messageInput" placeholder="Type your message...">
-                        <button class="send-btn" onclick="sendMessage()">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
+            <script>
+                // Fetch user details from local storage
+                const currentUser = JSON.parse(localStorage.getItem('user'));
+                if (currentUser) {
+                    document.getElementById('userName').textContent = currentUser.name;
+                    document.getElementById('userEmail').textContent = currentUser.email;
+                }
+
+                // Generate a unique room name
+                const roomName = `MentoringSession-${Date.now()}`;
+
+                // Initialize Jitsi Meet with the generated room name
+                const domain = "meet.jit.si";
+                const options = {
+                    roomName: roomName,
+                    width: 700,
+                    height: 700,
+                    parentNode: document.querySelector('#meet')
+                };
+                const api = new JitsiMeetExternalAPI(domain, options);
+
+                // Show feedback form after meeting ends
+                api.addEventListener('videoConferenceLeft', () => {
+                    document.getElementById('feedback').style.display = 'block';
+                });
+
+                // Handle feedback form submission
+                document.getElementById('feedbackForm').addEventListener('submit', async function(event) {
+                    event.preventDefault();
+                    const feedback = document.getElementById('feedbackInput').value.trim();
+                    if (feedback) {
+                        try {
+                            const response = await fetch('http://localhost:5000/api/feedback', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ userId: currentUser.id, feedback })
+                            });
+                            const result = await response.json();
+                            if (result.success) {
+                                alert('Feedback submitted successfully!');
+                                document.getElementById('feedback').style.display = 'none';
+                            } else {
+                                alert('Failed to submit feedback.');
+                            }
+                        } catch (error) {
+                            console.error('Error submitting feedback:', error);
+                        }
+                    }
+                });
+            </script>
         </main>
     </div>
 
     <!-- Custom JS -->
     <script src="js/dashboard.js"></script>
-    <script src="js/calendar.js"></script>
     <script src="js/video-chat.js"></script>
     <script src="js/chat.js"></script>
 </body>

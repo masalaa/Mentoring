@@ -61,10 +61,21 @@
             window.location.href = 'login.html';
         }
 
+        // Debugging: Log currentUser to verify its contents
+        console.log('Current User:', currentUser);
+
+        // Ensure mentorId is correctly set
+        const mentorId = currentUser._id;
+        if (!mentorId) {
+            console.error('Mentor ID is undefined. Please check the user object in localStorage.');
+        } else {
+            console.log('Mentor ID:', mentorId); // Debugging log
+        }
+
         // Load user courses
         async function loadUserCourses() {
             try {
-                const response = await fetch(`http://localhost:5000/api/mentor/courses/${currentUser._id}`);
+                const response = await fetch(`http://localhost:5000/api/mentor/courses/${mentorId}`);
                 const data = await response.json();
                 
                 const courseSection = document.querySelector('.course-section');
@@ -98,14 +109,82 @@
             }
         }
 
-        // Sign out handler
-        document.getElementById('signoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
+        // Fetch and display enrollment requests
+        async function loadEnrollmentRequests() {
+            try {
+                const response = await fetch(`http://localhost:5000/api/mentor/enrollment-requests/${mentorId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const requestCards = document.getElementById('requestCards');
+                    requestCards.innerHTML = data.requests.map(request => `
+                        <div class="request-card" data-request-id="${request._id}">
+                            <h4>${request.courseId.overview.title}</h4>
+                            <p>Mentee: ${request.userId.name}</p>
+                            <button class="accept-btn">Accept</button>
+                            <button class="decline-btn">Decline</button>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading enrollment requests:', error);
+            }
+        }
+
+        // Handle accept and decline button clicks
+        document.addEventListener('DOMContentLoaded', () => {
+            const requestCards = document.getElementById('requestCards');
+            requestCards.addEventListener('click', async (event) => {
+                const requestId = event.target.closest('.request-card').getAttribute('data-request-id');
+                if (event.target.classList.contains('accept-btn')) {
+                    try {
+                        const response = await fetch(`http://localhost:5000/api/mentor/accept-request`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ requestId })
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            alert('Request accepted successfully!');
+                            loadEnrollmentRequests(); // Refresh requests
+                        } else {
+                            alert('Failed to accept request. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Error accepting request:', error);
+                    }
+                } else if (event.target.classList.contains('decline-btn')) {
+                    try {
+                        const response = await fetch(`http://localhost:5000/api/mentor/decline-request`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ requestId })
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            alert('Request declined successfully!');
+                            loadEnrollmentRequests(); // Refresh requests
+                        } else {
+                            alert('Failed to decline request. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Error declining request:', error);
+                    }
+                }
+            });
         });
 
-        // Load courses when page loads
-        window.addEventListener('load', loadUserCourses);
+        // Load courses and requests when page loads
+        window.addEventListener('load', () => {
+            loadUserCourses();
+            loadEnrollmentRequests();
+        });
     </script>
 </body>
 </html>
