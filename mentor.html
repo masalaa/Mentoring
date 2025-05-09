@@ -33,10 +33,24 @@
             <div class="welcome-header">
                 <h1 id="welcomeMessage">Welcome, <span class="mentor-name">Mentor</span></h1>
                 <p class="welcome-subtitle">Manage your courses and connect with students</p>
-        
+            </div>
+        </div>
+
         <div class="course-list">
             <!-- Course cards will be dynamically added here -->
         </div>
+
+        <!-- Enrolled Students Section -->
+        <section id="enrolled-students" class="enrolled-students-section">
+            <h2>Enrolled Students</h2>
+            <ul id="studentList">
+                <!-- Hardcoded student data -->
+                <li>
+                    athish
+                    <button onclick="startMeeting('67f6f1eec0d2ae4dc61e867f')">Join Video Call</button>
+                </li>
+            </ul>
+        </section>
     </main>
 
     <!-- Video Call Modal -->
@@ -62,7 +76,7 @@
         // Video call functionality
         document.getElementById('videoCallBtn').addEventListener('click', () => {
             const now = new Date();
-            const defaultName = `Mentoring Session - ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+            const defaultName = `MentoringSession-${now.toLocaleDateString()}-${now.toLocaleTimeString()}`;
             document.getElementById('meetingName').value = defaultName;
             document.getElementById('hostModal').style.display = 'block';
         });
@@ -78,6 +92,12 @@
             window.location.href = `video-call.html?name=${encodeURIComponent(meetingName)}`;
         });
 
+        // Function to start meeting for student
+        function startMeeting(studentId) {
+            const roomName = `MentoringSession-${studentId}`; // Consistent room name
+            window.location.href = `video-call.html?name=${encodeURIComponent(roomName)}`;
+        }
+
         // Close modal handlers
         document.getElementById('cancelMeetingBtn').addEventListener('click', () => {
             document.getElementById('hostModal').style.display = 'none';
@@ -88,6 +108,32 @@
                 document.getElementById('hostModal').style.display = 'none';
             }
         });
+
+        // Fetch enrolled students from the server
+        async function fetchEnrolledStudents() {
+            try {
+                const response = await fetch('http://localhost:5000/api/mentor/enrolled-students');
+                const studentData = await response.json();
+                const studentList = document.getElementById('studentList');
+                studentList.innerHTML = ''; // Clear existing list
+                studentData.forEach(student => {
+                    const listItem = document.createElement('li');
+                    const roomName = `MentoringSession-${student.id}-${Date.now()}`;
+                    const jitsiLink = `https://meet.jit.si/${roomName}`;
+                    
+                    listItem.innerHTML = `
+                        ${student.name} 
+                        <a href="${jitsiLink}" target="_blank">Join Video Call</a>
+                    `;
+                    studentList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching students:', error);
+            }
+        }
+
+        // Call fetchEnrolledStudents on page load
+        window.addEventListener('load', fetchEnrolledStudents);
     </script>
 </body>
 </html>

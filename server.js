@@ -727,7 +727,8 @@ app.get('/api/mentor/enrollment-requests/:mentorId', async (req, res) => {
     }
 });
 
-// Route to accept an enrollment request
+// Commented out the route to accept an enrollment request
+/*
 app.post('/api/mentor/accept-request', async (req, res) => {
     try {
         const { requestId } = req.body;
@@ -761,6 +762,15 @@ app.post('/api/mentor/accept-request', async (req, res) => {
         });
     }
 });
+*/
+
+// Connect to feedback.db
+mongoose.connect('mongodb://localhost/feedback.db', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('Connected to feedback.db'))
+.catch(err => console.error('Database connection error:', err));
 
 // Feedback storage endpoint
 app.post('/api/feedback', async (req, res) => {
