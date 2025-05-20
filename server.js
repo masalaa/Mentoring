@@ -30,7 +30,7 @@ const Feedback = require('./models/feedback'); // Import the Feedback model
 
 // Add these lines at the top with other requires
 const Mentor = require('./models/Mentor');
-const Mentee = require('./models/Mentee');
+const Mentee = require('./models/Mentee'); // Ensure Mentee model is imported
 
 // Add this function to check email uniqueness across both collections
 async function isEmailUnique(email) {
@@ -137,8 +137,8 @@ app.post('/api/publish-course', async (req, res) => {
     } catch (err) {
         console.error('Course publish error:', err);
         res.status(500).json({ 
-            success: false, 
-            message: 'Error publishing course', 
+            success: false,
+            message: 'Error publishing course',
             error: err.message 
         });
     }
@@ -620,6 +620,11 @@ const enrollmentRequestSchema = new mongoose.Schema({
         ref: 'mentees',
         required: true
     },
+    mentorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'mentors',
+        required: true
+    },
     plan: {
         type: String,
         required: true,
@@ -639,19 +644,12 @@ const enrollmentRequestSchema = new mongoose.Schema({
 const EnrollmentRequest = mongoose.model('EnrollmentRequest', enrollmentRequestSchema);
 
 // Update the enrollment route
+// Enrollment Request Routes
 app.post('/api/courses/enroll', async (req, res) => {
     try {
-        const { courseId, plan, userId } = req.body;
-        const authUserId = req.headers.authorization;
-
-        if (!authUserId || authUserId !== userId) {
-            return res.status(401).json({
-                success: false,
-                message: 'Unauthorized request'
-            });
-        }
-
-        // Verify course exists
+        const { courseId, userId, plan } = req.body;
+        
+        // Verify course existence and get mentor ID
         const course = await Course.findById(courseId);
         if (!course) {
             return res.status(404).json({
@@ -660,33 +658,20 @@ app.post('/api/courses/enroll', async (req, res) => {
             });
         }
 
-        // Create enrollment request
+        // Create a new enrollment request
         const enrollmentRequest = new EnrollmentRequest({
             courseId,
             userId,
+            mentorId: course.mentorId,
             plan
         });
 
         await enrollmentRequest.save();
 
-        // Update mentee's enrolledCourses array
-        await Mentee.findByIdAndUpdate(userId, {
-            $push: {
-                enrolledCourses: {
-                    courseId: courseId,
-                    plan: plan,
-                    status: 'pending',
-                    enrolledAt: new Date()
-                }
-            }
-        });
-
         res.json({
             success: true,
-            message: 'Enrollment request sent successfully',
-            requestId: enrollmentRequest._id
+            message: 'Enrollment request sent successfully'
         });
-
     } catch (error) {
         console.error('Enrollment error:', error);
         res.status(500).json({
@@ -696,35 +681,82 @@ app.post('/api/courses/enroll', async (req, res) => {
     }
 });
 
-// Route to get enrollment requests for a mentor
 app.get('/api/mentor/enrollment-requests/:mentorId', async (req, res) => {
-    try {
-        const mentorId = req.params.mentorId;
-        console.log(`Fetching enrollment requests for mentorId: ${mentorId}`);
 
-        // Fetch requests from the database
-        const requests = await EnrollmentRequest.find({ status: 'pending' })
+    try {
+        
+       
+        const mentorId = req.params.mentorId;
+        console.log(`Fetching enrollment requests for mentorId: ${mentorId}`); // Debugging log
+       
+        const requests = await EnrollmentRequest.find({ mentorId })
             .populate({
                 path: 'courseId',
-                match: { mentorId: mentorId },
-                select: 'overview.title'
+                select: 'overview.title pricing'
             })
-            .populate('userId', 'name');
+            
+            .populate('userId', 'name email')
+            .sort({ createdAt: -1 }); // Sort by newest first
+         
+        if (!requests) {
+            return res.status(404).json({
+                success: false,
+                message: 'No requests found for this mentor'
+            });
+        }
 
-        // Filter out requests where courseId is null (i.e., not matching mentorId)
-        const filteredRequests = requests.filter(request => request.courseId !== null);
-
-        console.log(`Found ${filteredRequests.length} requests`);
+        // Group requests by status
+        const groupedRequests = {
+            pending: requests.filter(req => req.status === 'pending'),
+            approved: requests.filter(req => req.status === 'approved'),
+            rejected: requests.filter(req => req.status === 'rejected')
+        };
 
         res.json({
             success: true,
-            requests: filteredRequests
+            requests: groupedRequests
         });
     } catch (error) {
-        console.error('Error fetching enrollment requests:', error);
+    
+
+        console.error('Error fetching requests:', error.message); // Log the error message
         res.status(500).json({
             success: false,
-            message: 'Error fetching enrollment requests'
+            message: 'Error fetching enrollment requests',
+            error: error.message // Include error message in response for debugging
+        });
+    }
+});
+
+app.post('/api/mentor/respond-request', async (req, res) => {
+    try {
+        const { requestId, action } = req.body;
+        const status = action === 'accept' ? 'approved' : 'rejected';
+
+        // Update the request status
+        const request = await EnrollmentRequest.findByIdAndUpdate(
+            requestId,
+            { status },
+            { new: true }
+        );
+
+        if (!request) {
+            return res.status(404).json({
+                success: false,
+                message: 'Request not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: `Request ${status} successfully`,
+            request
+        });
+    } catch (error) {
+        console.error('Error responding to request:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error processing response'
         });
     }
 });
@@ -805,4 +837,104 @@ app.get('/api/feedback', async (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+});
+
+// Authentication and Profile Routes
+app.get('/api/profile', (req, res) => {
+    // In a real app, you would fetch this from a database
+    const mockEnrolledCourses = [
+        {
+            title: "Machine Learning & AI",
+            progress: 60,
+            mentor: "Dr. Smith",
+            image: "ml-bg"
+        },
+        {
+            title: "Web Development",
+            progress: 30,
+            mentor: "Jane Wilson",
+            image: "web-bg"
+        }
+    ];
+
+    res.json({
+        success: true,
+        courses: mockEnrolledCourses
+    });
+});
+
+// Add this route to handle mentee profile data
+app.get('/api/mentee-profile', async (req, res) => {
+    try {
+        const userEmail = req.query.email;
+        // Fetch from your database
+        const menteeData = await db.collection('mentees').findOne({ email: userEmail });
+        
+        if (menteeData) {
+            res.json({
+                success: true,
+                data: menteeData
+            });
+        } else {
+            res.status(404).json({ success: false, message: 'Mentee not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Add this route to fetch courses by mentorId
+app.get('/api/mentor/courses/:mentorId', async (req, res) => {
+    try {
+        const mentorId = req.params.mentorId;
+        const courses = await Course.find({ 'mentor.id': mentorId }); // Adjust the query based on your schema
+
+        if (!courses || courses.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No courses found for this mentor'
+            });
+        }
+
+        res.json({
+            success: true,
+            courses
+        });
+    } catch (error) {
+        console.error('Error fetching courses:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching courses'
+        });
+    }
+});
+
+// Update course status route
+app.post('/api/course/status', async (req, res) => {
+    try {
+        const { courseId, status } = req.body;
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: 'Course not found'
+            });
+        }
+
+        course.status = status;
+        await course.save();
+
+        res.json({
+            success: true,
+            message: `Course status updated to ${status}`
+        });
+    } catch (error) {
+        console.error('Error updating course status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating course status',
+            error: error.message
+        });
+    }
 });

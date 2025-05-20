@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Business - Mentoring</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/main9.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -17,6 +18,9 @@
             <div class="nav-links">
                 <a href="mentor.html">Dashboard</a>
                 <a href="business.html" class="active">My Business</a>
+                <a href="video-call.html" class="video-call-btn">
+                    <i class="fas fa-video"></i> Video Call
+                </a>
             </div>
         </div>
         <div class="nav-right">
@@ -42,9 +46,92 @@
                 <div class="section-header">
                     <h2>Course Requests</h2>
                 </div>
-                <div id="requestCards" class="request-cards"></div>
+                <div id="requestCards" class="request-cards">
+                    <!-- Request cards will be populated by JavaScript -->
+                </div>
             </div>
-        
+
+            <script>
+                async function loadEnrollmentRequests() {
+                    try {
+                        if (!mentorId) {
+                            throw new Error('Mentor ID is undefined. Please check the user object in localStorage.');
+                        }
+
+                        const response = await fetch(`http://localhost:5000/api/mentor/enrollment-requests/${mentorId}`);
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch enrollment requests: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+                        if (data.success) {
+                            const requestCards = document.getElementById('requestCards');
+                            const deniedCards = document.getElementById('deniedCards');
+
+                            // Display pending requests
+                            requestCards.innerHTML = data.requests.pending.map(request => `
+                                <div class="request-card" data-request-id="${request._id}">
+                                    <h4>Course: ${request.courseId.overview.title}</h4>
+                                    <p>Student: ${request.userId.name}</p> <!-- Display mentee name -->
+                                    <p>Plan: ${request.plan}</p>
+                                    <div class="request-actions">
+                                        <button class="accept-btn" onclick="respondToRequest('${request._id}', 'accept')">Accept</button>
+                                        <button class="decline-btn" onclick="respondToRequest('${request._id}', 'reject')">Decline</button>
+                                    </div>
+                                </div>
+                            `).join('') || '<div class="no-requests"><p>No pending requests at this time.</p></div>';
+
+                            // Display rejected requests
+                            deniedCards.innerHTML = data.requests.rejected.map(request => `
+                                <div class="request-card rejected" data-request-id="${request._id}">
+                                    <h4>Course: ${request.courseId.overview.title}</h4>
+                                    <p>Student: ${request.userId.name}</p> <!-- Display mentee name -->
+                                    <p>Plan: ${request.plan}</p>
+                                    <p>Status: ${request.status}</p>
+                                    <p>Date: ${new Date(request.createdAt).toLocaleDateString()}</p>
+                                </div>
+                            `).join('') || '<div class="no-requests"><p>No declined requests at this time.</p></div>';
+                        }
+                    } catch (error) {
+                        console.error('Error loading enrollment requests:', error);
+                    }
+                }
+            </script>
+            <!-- Add this script section before the closing body tag -->
+            <!-- Update the respondToRequest function -->
+            <script>
+                async function respondToRequest(requestId, action) {
+                    try {
+                        const response = await fetch(`http://localhost:5000/api/mentor/respond-request`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ requestId, action })
+                        });
+                        if (response.ok) {
+                            const card = document.querySelector(`.request-card[data-request-id="${requestId}"]`);
+                            if (card) {
+                                card.classList.add('hidden'); // Add the hidden class to hide the card
+                                if (action === 'reject') {
+                                    // Move the card to the Denied Requests section if rejected
+                                    const deniedCards = document.getElementById('deniedCards');
+                                    card.classList.remove('hidden'); // Make sure it's visible in the denied section
+                                    card.classList.add('rejected');
+                                    card.querySelector('.request-actions').remove(); // Remove action buttons
+                                    deniedCards.appendChild(card);
+                                }
+                            }
+                            alert(`Request ${action}ed successfully!`);
+                        } else {
+                            alert('Failed to process request. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error processing request');
+                    }
+                }
+            </script>
             <div class="denied-section">
                 <div class="section-header">
                     <h3>Denied Requests</h3>
@@ -56,24 +143,36 @@
 
     <script>
         // Check authentication
-        const currentUser = JSON.parse(localStorage.getItem('user'));
-        if (!currentUser) {
-            window.location.href = 'login.html';
+        const userString = localStorage.getItem('user');
+        let currentUser = null;
+        let mentorId = null; // Declare mentorId globally
+
+        console.log('User data from localStorage:', userString); // Debugging log
+
+        try {
+            currentUser = JSON.parse(userString);
+            console.log('Parsed user object:', currentUser); // Log the parsed user object
+        } catch (error) {
+            console.error('Error parsing user data from localStorage:', error);
         }
 
-        // Debugging: Log currentUser to verify its contents
-        console.log('Current User:', currentUser);
-
-        // Ensure mentorId is correctly set
-        const mentorId = currentUser._id;
-        if (!mentorId) {
-            console.error('Mentor ID is undefined. Please check the user object in localStorage.');
+        if (!currentUser) {
+            console.error('User not authenticated or user data is malformed. Redirecting to login page.');
+            window.location.href = 'login.html';
         } else {
-            console.log('Mentor ID:', mentorId); // Debugging log
+            // Ensure mentorId is correctly set
+            mentorId = currentUser.id; // Use 'id' instead of '_id' based on your provided data
+            if (!mentorId) {
+                console.error('Mentor ID is undefined. Please check the user object in localStorage.');
+                window.location.href = 'login.html';
+            } else {
+                console.log('Mentor ID:', mentorId); // Debugging log
+            }
         }
 
         // Load user courses
         async function loadUserCourses() {
+
             try {
                 const response = await fetch(`http://localhost:5000/api/mentor/courses/${mentorId}`);
                 const data = await response.json();
@@ -96,9 +195,11 @@
                         <div class="course-info">
                             <h3>${course.overview.title}</h3>
                             <p class="category">${course.overview.category}</p>
-                            <div class="course-stats">
-                                <span><i class="fas fa-users"></i> ${course.enrollments || 0}</span>
-                            </div>
+                            
+                        <div class="course-actions">
+                            <button onclick="updateCourseStatus('${course._id}', 'approved')">Accept</button>
+                            <button onclick="updateCourseStatus('${course._id}', 'rejected')">Reject</button>
+                        </div>
                         </div>
                     </div>
                 `).join('');
@@ -110,21 +211,43 @@
         }
 
         // Fetch and display enrollment requests
+        // Update the loadEnrollmentRequests function
         async function loadEnrollmentRequests() {
+            
             try {
+                
                 const response = await fetch(`http://localhost:5000/api/mentor/enrollment-requests/${mentorId}`);
+               
                 const data = await response.json();
-
+        
                 if (data.success) {
                     const requestCards = document.getElementById('requestCards');
-                    requestCards.innerHTML = data.requests.map(request => `
+                    const deniedCards = document.getElementById('deniedCards');
+        
+                    // Display pending requests
+                    requestCards.innerHTML = data.requests.pending.map(request => `
                         <div class="request-card" data-request-id="${request._id}">
-                            <h4>${request.courseId.overview.title}</h4>
-                            <p>Mentee: ${request.userId.name}</p>
-                            <button class="accept-btn">Accept</button>
-                            <button class="decline-btn">Decline</button>
+                            <h4>Course: ${request.courseId.overview.title}</h4>
+                            <p>Student: ${request.userId.name}</p>
+                            <p>Plan: ${request.plan}</p>
+                            <p>Status: ${request.status}</p>
+                            <div class="request-actions">
+                                <button class="accept-btn" onclick="respondToRequest('${request._id}', 'accept')">Accept</button>
+                                <button class="decline-btn" onclick="respondToRequest('${request._id}', 'reject')">Decline</button>
+                            </div>
                         </div>
-                    `).join('');
+                    `).join('') || '<div class="no-requests"><p>No pending requests at this time.</p></div>';
+        
+                    // Display rejected and approved requests
+                    deniedCards.innerHTML = [...data.requests.rejected, ...data.requests.approved].map(request => `
+                        <div class="request-card ${request.status}">
+                            <h4>Course: ${request.courseId.overview.title}</h4>
+                            <p>Student: ${request.userId.name}</p>
+                            <p>Plan: ${request.plan}</p>
+                            <p>Status: ${request.status}</p>
+                            <p>Date: ${new Date(request.createdAt).toLocaleDateString()}</p>
+                        </div>
+                    `).join('') || '<div class="no-requests"><p>No past requests.</p></div>';
                 }
             } catch (error) {
                 console.error('Error loading enrollment requests:', error);
@@ -188,3 +311,28 @@
     </script>
 </body>
 </html>
+
+<script>
+async function updateCourseStatus(courseId, status) {
+    try {
+        const response = await fetch(`http://localhost:5000/api/course/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ courseId, status })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert(`Course status updated to ${status}!`);
+            // Optionally, refresh the course list or update the UI
+        } else {
+            alert('Failed to update course status. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error updating course status:', error);
+        alert('Error updating course status');
+    }
+}
+</script>

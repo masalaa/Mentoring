@@ -31,23 +31,20 @@
             <div class="nav-links">
                 <div class="main-nav">
                     <a href="index.html" class="active">Home</a>
+                    <a href="dashboard.html" class="dashboard-link" style="display: none;">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
                     <a href="#mentor">Mentor</a>
-                    <a href="#about">About</a>
-                    <a href="schedule.html" class="schedule-link" style="display: none;">
-                        <i class="fas fa-calendar"></i> Schedule
-                    </a>
-                    <a href="profile.html" class="profile-link" style="display: none;">
-                        <i class="fas fa-user-circle"></i> Profile
-                    </a>
-                </div>
-                <div class="auth-nav">
-                    <a href="login.html" class="auth-btn">Login</a>
-                    <a href="signup.html" class="auth-btn">Sign Up</a>
-                    <a href="#" class="signout-btn" style="display: none;">Sign Out</a>
-                </div>
+                    <a href="about.html">About</a>
             </div>
-        </nav>
-    </header>
+            <div class="auth-nav">
+                <a href="login.html" class="auth-btn">Login</a>
+                <a href="signup.html" class="auth-btn">Sign Up</a>
+                <a href="#" class="signout-btn" style="display: none;">Sign Out</a>
+            </div>
+        </div>
+    </nav>
+</header>
 
     <main>
         <section id="home" class="hero-section">
@@ -56,20 +53,40 @@
                 <input type="text" class="search-bar" placeholder="Search for courses..." id="searchInput">
                 <button class="search-btn" onclick="handleSearch()">Search</button>
             </div>
-            <script>
-                function handleSearch() {
-                    const searchTerm = document.getElementById('searchInput').value.trim();
-                    if (searchTerm) {
-                        window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}`;
-                    }
-                }
+            
+                <script>
+                    window.addEventListener('load', async function() {
+                        const user = JSON.parse(localStorage.getItem('user'));
+                        const dashboardLink = document.querySelector('.dashboard-link');
+                        const signoutBtn = document.querySelector('.signout-btn');
+                        const authButtons = document.querySelectorAll('.auth-btn');
+                        
+                        if (user) {
+                            dashboardLink.style.display = 'flex';
+                            signoutBtn.style.display = 'flex';
+                            authButtons.forEach(btn => btn.style.display = 'none');
 
-                // Add enter key support
-                document.getElementById('searchInput').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        handleSearch();
+                            if (user.role === 'mentee') {
+                                dashboardLink.href = 'dashboard.html';
+                            } else if (user.role === 'mentor') {
+                                dashboardLink.href = 'dashboard.html';
+                            }
+                        }
+                    });
+
+                    function handleSearch() {
+                        const searchTerm = document.getElementById('searchInput').value.trim();
+                        if (searchTerm) {
+                            window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}`;
+                        }
                     }
-                });
+
+                    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            handleSearch();
+                        }
+                    });
+                </script>
             </script>
         </section>
 
@@ -106,37 +123,13 @@
             </div>
         </section>
 
+        <!-- About section removed -->
+
         <section id="contact" class="contact-section">
             <h2>Contact Us</h2>
             <p>Email: <a href="mailto:23z310@psgtech.ac.in">23z310@psgtech.ac.in</a></p>
         </section>
 
-        <!-- Add after enrollment section -->
-        <section id="schedule" class="schedule-section">
-            <h2>Schedule Your Learning Journey</h2>
-            <div class="schedule-container">
-                <div class="calendar-wrapper">
-                    <div id="calendar"></div>
-                </div>
-                <div class="schedule-info">
-                    <div class="info-card">
-                        <i class="fas fa-calendar-check"></i>
-                        <h3>Book Sessions</h3>
-                        <p>Schedule one-on-one sessions with expert mentors</p>
-                    </div>
-                    <div class="info-card">
-                        <i class="fas fa-clock"></i>
-                        <h3>Flexible Timing</h3>
-                        <p>Choose from various time slots that suit you</p>
-                    </div>
-                    <div class="info-card">
-                        <i class="fas fa-video"></i>
-                        <h3>Video Meetings</h3>
-                        <p>Connect through high-quality video sessions</p>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
     <footer>
@@ -144,7 +137,46 @@
     </footer>
 
     <!-- JavaScript -->
-    <!-- Add before closing body tag -->
     <script src="js/main.js"></script>
+    <script>
+        window.addEventListener('load', async function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const dashboardLink = document.querySelector('.dashboard-link');
+            const signoutBtn = document.querySelector('.signout-btn');
+            const authButtons = document.querySelectorAll('.auth-btn');
+            
+            if (user) {
+                dashboardLink.style.display = 'flex';
+                signoutBtn.style.display = 'flex';
+                authButtons.forEach(btn => btn.style.display = 'none');
+    
+                if (user.role === 'mentee') {
+                    dashboardLink.href = 'dashboard.html';
+                } else if (user.role === 'mentor') {
+                    dashboardLink.href = 'dashboard.html';
+                }
+            }
+        });
+    
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (searchTerm) {
+                window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}`;
+            }
+        }
+    
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+    
+        // Add event listeners to "Enroll Now" buttons
+        document.querySelectorAll('.enroll-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                window.location.href = 'course-search.html';
+            });
+        });
+    </script>
 </body>
 </html>

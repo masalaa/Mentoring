@@ -13,11 +13,22 @@
     </header>
 
     <main class="search-results-container">
+        <div class="back-navigation">
+            <button onclick="goBack()" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
         <h2>Search Results</h2>
         <div class="search-results" id="searchResults">
             <!-- Results will be populated here -->
         </div>
     </main>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
 
     <script>
         async function fetchSearchResults() {

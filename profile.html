@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page</title>
+    <title>Profile - Mentoring</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/main7.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
@@ -14,81 +23,144 @@
                 <h1>Mentoring</h1>
             </div>
             <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="#mentor">Mentor</a>
-                <a href="#about">About</a>
-                <a href="profile.html" class="profile-link active">
-                    <i class="fas fa-user-circle"></i> Profile
-                </a>
-                <a href="login.html" class="auth-btn" style="display: none;">Login</a>
-                <a href="signup.html" class="auth-btn" style="display: none;">Sign Up</a>
-                <a href="#" class="signout-btn">Sign Out</a>
+                <div class="main-nav">
+                    <a href="index.html">Home</a>
+                    <a href="dashboard.html" class="dashboard-link">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                    <a href="#mentor">Mentor</a>
+                   
+                    <a href="profile.html" class="profile-link active">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                     <a href="about.html">About</a>
+                </div>
+                <div class="auth-nav">
+                    <a href="#" class="signout-btn">Sign Out</a>
+                </div>
             </div>
         </nav>
     </header>
 
-    <main class="profile-main">
-        <div class="profile-container">
-            <div class="profile-header">
-                <div class="profile-avatar">
-                    <i class="fas fa-user-circle"></i>
+    <main>
+        <section class="profile-section">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h2>Mentee Profile</h2>
+                        <p class="user-name">John Doe</p>
+                        <p class="user-email">john@example.com</p>
+                    </div>
                 </div>
-                <div class="profile-info">
-                    <h2>John Doe</h2>
-                    <p>Student</p>
-                    <p>Joined: January 2023</p>
-                </div>
-            </div>
 
-            <div class="profile-stats">
-                <div class="stat-card">
-                    <i class="fas fa-book-open"></i>
+                <div class="enrolled-courses">
                     <h3>Enrolled Courses</h3>
-                    <span>3</span>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-clock"></i>
-                    <h3>Learning Hours</h3>
-                    <span>45</span>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-certificate"></i>
-                    <h3>Certificates</h3>
-                    <span>2</span>
-                </div>
-            </div>
+                    <div class="course-cards">
+                        <div class="course-card">
+                            <div class="course-image ml-bg"></div>
+                            <div class="course-details">
+                                <h4>Machine Learning & AI</h4>
+                                <p class="progress">Progress: 60%</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                                <p class="mentor">Mentor: Dr. Smith</p>
+                                <button class="continue-btn">Continue Learning</button>
+                            </div>
+                        </div>
 
-            <div class="enrolled-courses">
-                <h3>My Courses</h3>
-                <div class="course-progress-grid">
-                    <div class="course-progress-card">
-                        <h4>Machine Learning & AI</h4>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 75%"></div>
+                        <div class="course-card">
+                            <div class="course-image web-bg"></div>
+                            <div class="course-details">
+                                <h4>Web Development</h4>
+                                <p class="progress">Progress: 30%</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 30%"></div>
+                                </div>
+                                <p class="mentor">Mentor: Jane Wilson</p>
+                                <button class="continue-btn">Continue Learning</button>
+                            </div>
                         </div>
-                        <span>75% Complete</span>
-                    </div>
-                    <div class="course-progress-card">
-                        <h4>Data Analysis</h4>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 45%"></div>
-                        </div>
-                        <span>45% Complete</span>
                     </div>
                 </div>
             </div>
-
-            <div class="learning-analytics">
-                <h3>Learning Progress</h3>
-                <canvas id="learningChart"></canvas>
-            </div>
-        </div>
+        </section>
     </main>
 
-    <script src="js/profile.js"></script>
-    <script src="js/auth.js"></script> <!-- Include the auth.js script -->
+    <footer>
+        <p>&copy; 2025 Mentoring. All rights reserved.</p>
+    </footer>
+
+    <!-- Update the script section -->
     <script>
-        // ... existing JavaScript code ... 
+        window.addEventListener('load', async function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+            if (!user) {
+                showLoginAlert();
+                return;
+            }
+
+            try {
+                // Update profile information
+                document.querySelector('.user-email').textContent = user.email;
+                document.querySelector('.user-name').textContent = user.name;
+
+                // Update role-specific title
+                document.querySelector('.profile-info h2').textContent = 
+                    user.role === 'mentee' ? 'Mentee Profile' : 'Mentor Profile';
+
+                // Update enrolled courses
+                const courseCards = document.querySelector('.course-cards');
+                if (user.enrolledCourses && user.enrolledCourses.length > 0) {
+                    courseCards.innerHTML = user.enrolledCourses.map(course => `
+                        <div class="course-card">
+                            <div class="course-image ${course.courseImage}"></div>
+                            <div class="course-details">
+                                <h4>${course.courseName}</h4>
+                                <p class="progress">Progress: ${course.progress}%</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${course.progress}%"></div>
+                                </div>
+                                <p class="mentor">Mentor: ${course.mentorName}</p>
+                                <button class="continue-btn" onclick="continueCourse('${course.id}')">
+                                    Continue Learning
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    courseCards.innerHTML = '<p>No courses enrolled yet.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        });
+
+        function showLoginAlert() {
+            const alertBox = document.createElement('div');
+            alertBox.className = 'alert-box';
+            alertBox.innerHTML = `
+                <div class="alert-content">
+                    <h3>Please Login First</h3>
+                    <p>You need to be logged in to access your profile.</p>
+                    <button onclick="window.location.href='login.html'">Login Now</button>
+                </div>
+            `;
+            document.body.appendChild(alertBox);
+            
+            setTimeout(() => {
+                alertBox.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        }
     </script>
 </body>
 </html>

@@ -201,18 +201,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     const mentorLink = document.querySelector('a[href="#mentor"]');
+    const dashboardLink = document.querySelector('.dashboard-link');
+    const profileLink = document.querySelector('.profile-link');
+
+    // Handle mentor link click
+    if (mentorLink) {
+        mentorLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const user = localStorage.getItem('user');
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!user && !isLoggedIn) {
+                showLoginAlert();
+                return;
+            }
+        });
+    }
+
+    // Handle dashboard link click
+    if (dashboardLink) {
+        dashboardLink.addEventListener('click', (e) => {
+            const user = localStorage.getItem('user');
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!user && !isLoggedIn) {
+                e.preventDefault();
+                showLoginAlert();
+                return;
+            }
+        });
+    }
+
+    // Handle profile link click
+    if (profileLink) {
+        profileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
     
-    mentorLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        const user = JSON.parse(localStorage.getItem('user'));
-        
-        if (!user) {
-            showLoginAlert();
-            return;
-        }
-        
-        showMentorMenu();
-    });
+            if (!user && !isLoggedIn) {
+                showLoginAlert();
+                return;
+            }
+    
+            // If logged in, fetch and display user profile
+            if (user) {
+                if (user.role === 'mentee') {
+                    window.location.href = `mentee-profile.html?id=${user.id}`;
+                } else if (user.role === 'mentor') {
+                    window.location.href = `mentor-profile.html?id=${user.id}`;
+                }
+            }
+        });
+    }
 });
 
 function showLoginAlert() {
@@ -221,7 +260,7 @@ function showLoginAlert() {
     alertBox.innerHTML = `
         <div class="alert-content">
             <h3>Please Login First</h3>
-            <p>You need to be logged in to access mentor features.</p>
+            <p>You need to be logged in to access this feature.</p>
             <button onclick="window.location.href='login.html'">Login Now</button>
         </div>
     `;
@@ -303,5 +342,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         calendar.render();
+    }
+});
+
+// Contact form handling
+document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
+    
+    // Here you can add code to handle the form submission
+    alert('Thank you for your message! We will get back to you soon.');
+    this.reset();
+});
+
+window.addEventListener('load', function() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const authNav = document.querySelector('.auth-nav');
+    const dashboardLink = document.querySelector('.dashboard-link');
+    const profileLink = document.querySelector('.profile-link');
+    const signoutBtn = document.querySelector('.signout-btn');
+    const loginBtn = document.querySelectorAll('.auth-btn');
+
+    if (isLoggedIn === 'true') {
+        // Show logged in state
+        loginBtn.forEach(btn => btn.style.display = 'none');
+        if (dashboardLink) dashboardLink.style.display = 'inline-block';
+        if (profileLink) profileLink.style.display = 'inline-block';
+        if (signoutBtn) signoutBtn.style.display = 'inline-block';
+    }
+
+    // Handle sign out
+    if (signoutBtn) {
+        signoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userEmail');
+            window.location.href = 'index.html';
+        });
     }
 });

@@ -5,132 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Mentoring</title>
     <link rel="stylesheet" href="styles/main.css">
-    <script src="https://meet.jit.si/external_api.js"></script> <!-- Jitsi API script -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Include FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <!-- Include FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
     <style>
-        /* Add custom styles for the dashboard */
-        .dashboard-layout {
-            display: flex;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
         }
-        .sidebar {
-            width: 250px;
+        .navbar {
             background-color: #333;
             color: #fff;
-            padding: 20px;
-        }
-        .user-profile {
-            text-align: center;
-        }
-        .profile-image {
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-        }
-        .welcome-message {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .jitsi-container {
+            padding: 10px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            height: 80vh;
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .logo-container h1 {
+            margin: 0;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .dashboard-content {
+            padding: 20px;
+        }
+        .welcome-section, .video-call-section, .schedule-section {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        .video-call-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .video-call-btn:hover {
+            background-color: #0056b3;
+        }
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-layout">
-        <nav class="sidebar">
-            <div class="user-profile">
-                <img src="assets/images/default-avatar.png" alt="Profile" class="profile-image">
-                <h3 class="user-name">Welcome, <span id="userName">User</span></h3>
-                <p>Email: <span id="userEmail">user@example.com</span></p>
-            </div>
-        </nav>
+    <nav class="navbar">
+        <div class="logo-container">
+            <div class="logo"></div>
+            <h1>Mentoring</h1>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="profile.html">Profile</a>
+            <a href="index.html" class="signout-btn">Sign Out</a>
+        </div>
+    </nav>
 
-        <main class="main-content">
-            <div class="welcome-message">
-                <h1>Welcome to Your Dashboard</h1>
-                <p>Start your video call session below.</p>
-            </div>
+    <main class="dashboard-content">
+        <section id="welcome" class="welcome-section">
+            <h2>Welcome to Your Dashboard</h2>
+            <p>Manage your learning journey and connect with mentors.</p>
+        </section>
 
-            <section id="video-call" class="video-call-section">
-                <h2>Video Call</h2>
-                <div class="jitsi-container" id="meet"></div> <!-- Jitsi Meet container -->
-            </section>
+        <!-- Video Call Button -->
+        <section id="video-call" class="video-call-section">
+            <h2>Video Call</h2>
+            <button id="videoCallBtn" class="video-call-btn">
+                <i class="fas fa-video"></i> Start Video Call
+            </button>
+        </section>
 
-            <section id="feedback" class="feedback-section" style="display: none;">
-                <h2>Meeting Feedback</h2>
-                <form id="feedbackForm">
-                    <textarea id="feedbackInput" placeholder="Enter your feedback" required></textarea>
-                    <button type="submit">Submit Feedback</button>
-                </form>
-            </section>
+        <!-- Schedule Section with FullCalendar -->
+        <section id="schedule" class="schedule-section">
+            <h2>Schedule Your Learning Sessions</h2>
+            <div id='calendar'></div>
+        </section>
+    </main>
 
-            <script>
-                // Fetch user details from local storage
-                const currentUser = JSON.parse(localStorage.getItem('user'));
-                if (currentUser) {
-                    document.getElementById('userName').textContent = currentUser.name;
-                    document.getElementById('userEmail').textContent = currentUser.email;
-                }
+    <footer>
+        <p>&copy; 2025 Mentoring. All rights reserved.</p>
+    </footer>
 
-                // Generate a unique room name
-                const roomName = `MentoringSession-${Date.now()}`;
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+    <script>
+        // Video call functionality
+        document.getElementById('videoCallBtn').addEventListener('click', () => {
+            const roomName = `MentoringSession-${Date.now()}`;
+            window.location.href = `video-call.html?name=${encodeURIComponent(roomName)}`;
+        });
 
-                // Initialize Jitsi Meet with the generated room name
-                const domain = "meet.jit.si";
-                const options = {
-                    roomName: roomName,
-                    width: 700,
-                    height: 700,
-                    parentNode: document.querySelector('#meet')
-                };
-                const api = new JitsiMeetExternalAPI(domain, options);
-
-                // Show feedback form after meeting ends
-                api.addEventListener('videoConferenceLeft', () => {
-                    document.getElementById('feedback').style.display = 'block';
-                });
-
-                // Handle feedback form submission
-                document.getElementById('feedbackForm').addEventListener('submit', async function(event) {
-                    event.preventDefault();
-                    const feedback = document.getElementById('feedbackInput').value.trim();
-                    if (feedback) {
-                        try {
-                            const response = await fetch('http://localhost:5000/api/feedback', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ userId: currentUser.id, feedback })
-                            });
-                            const result = await response.json();
-                            if (result.success) {
-                                alert('Feedback submitted successfully!');
-                                document.getElementById('feedback').style.display = 'none';
-                            } else {
-                                alert('Failed to submit feedback.');
-                            }
-                        } catch (error) {
-                            console.error('Error submitting feedback:', error);
-                        }
+        // Initialize FullCalendar
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                selectable: true,
+                select: function(info) {
+                    var title = prompt('Enter Event Title:');
+                    if (title) {
+                        calendar.addEvent({
+                            title: title,
+                            start: info.startStr,
+                            end: info.endStr
+                        });
                     }
-                });
-            </script>
-        </main>
-    </div>
-
-    <!-- Custom JS -->
-    <script src="js/dashboard.js"></script>
-    <script src="js/video-chat.js"></script>
-    <script src="js/chat.js"></script>
+                    calendar.unselect();
+                }
+            });
+            calendar.render();
+        });
+    </script>
 </body>
 </html>
