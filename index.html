@@ -66,6 +66,8 @@
                             signoutBtn.style.display = 'flex';
                             authButtons.forEach(btn => btn.style.display = 'none');
 
+                            // Ensure mentorId is correctly set
+                            const mentorId = user.id; // Use 'id' instead of '_id'
                             if (user.role === 'mentee') {
                                 dashboardLink.href = 'dashboard.html';
                             } else if (user.role === 'mentor') {
